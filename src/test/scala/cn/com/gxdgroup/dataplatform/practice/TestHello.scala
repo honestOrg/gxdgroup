@@ -12,4 +12,9 @@ class TestHello extends FunSuite{
     assert(hello.sayHello("scala") == "hello,scala")
   }
 
+  test("other one"){
+    val hello = new Hello
+    assert(hello.sayHello("scala") == "hello,scala")
+  }
+
 }
