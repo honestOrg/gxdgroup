@@ -54,14 +54,33 @@ object CastDemo {
 
   case class Person(name: String, age: Int)
 
+  class Person1(name:String,age:Int)
+
   def wqcase(){
+
+    val honest = new Person1("Honest",34)
+    honest match {
+      case x: Person1 => println("honest")
+    }
+
 
     val alice = Person("Alice",25)
     val bob = Person("Bob",32)
     val charlie = Person("Charlie",32)
 
+    List(alice,bob,charlie).filter{
+      case Person(name,age) => {
+        age>25
+      }
+    }.filter{
+      case Person(name,age) => {
+        name=="Bob"
+      }
+    }.map(println _)
+
     for(person <- List(alice,bob,charlie)){
       person match {
+        //case Person(_,_) => println("easy type!!")
         //case Person("Alice",25) => println("Hi Alice")
         case Person(name,age) => {
           if(age >25){
@@ -69,13 +88,14 @@ object CastDemo {
           }
 
           age > 25  match {
-            case age => println("xqq:"+age)
+            case x => println("xqq:"+x)
             //case None => None
           }
         }
 
         case Person("Bob",32) => println("Hi Bob")
         case Person(name,age) => println(s"Age: $age year, name: $name !")
+
       }
     }
 

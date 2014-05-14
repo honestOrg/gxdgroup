@@ -19,8 +19,10 @@ class TestApply {
 
 }
 
-object TestApply {
 
+object TestApply {
+  new TestApply().kn1
+  //val dd = new scalaBean
 }
 
 class TestApply1 {
@@ -33,7 +35,7 @@ object  TestApply1 {
   var i = 0;
 
   def apply() = {
-    println("jjjjjj")
+    println("jjjjjjxxxx")
     new TestApply1
   }
 
