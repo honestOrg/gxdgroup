@@ -5,14 +5,58 @@ package cn.com.gxdgroup.dataplatform.practice
  */
 object CastDemo {
 
+  def kankan() : String = {
+
+    val myMap1 = Map("key1" -> "value1")
+
+    val value11 = myMap1.get("key1")
+
+    value11.getOrElse("cc")
+  }
+
+  def kankan1(): Person = {
+
+    val myMap1 = Map("key1" -> Person("Alice",25))
+
+    val value11 = myMap1.get("key1")
+
+    value11.getOrElse(new Person())
+
+  }
+
   def main(args: Array[String]) {
     println(matchTest(1))
-
+    println("--------------")
+    println("nomatch:"+matchTest1())
+    println("--------------")
     wqcase()
-
+    println("--------------")
     //caseStr()
 
     caseList
+
+
+    caseNull()
+  }
+
+
+  def caseNull() {
+    val myMap = Map("key1" -> "value1")
+
+    val value1 = myMap.get("key1")
+    val value2 = myMap.get("key2")
+    val value3 = myMap.get("key3")
+
+    val result1 = value1.getOrElse(0)
+    val result2 = value2.getOrElse(0)
+    val result3 = value3 match {
+      case Some(n) => n
+      case None => 1
+    }
+
+    println(result1)
+    println(result2)
+    println(result3)
   }
 
   def caseList(){
@@ -27,10 +71,10 @@ object CastDemo {
     List(("Mark",4),("Charles",5),("honest",4)).filter{
       case(name,number) => number == 4 && name =="honest"
     }.map(println _)
-    println("---------------------------")
+    println("---------------------------!")
     List(("Mark",4),("Charles",5),("honest",4)).filter{
             case(name,number) => number == 4
-    }.filter{case(x,t) => x=="honest"}.map(println _)
+    }.filter{case(name,number) => name =="honest"}.map(println _)
   }
 
 //  def caseStr(){
@@ -52,13 +96,24 @@ object CastDemo {
     case _ => "many"
   }
 
-  case class Person(name: String, age: Int)
+  def matchTest1(x: Any): Any = x match {
+    case Some(1) => "one"
+    case _ => "haha"
+  }
+
+  case class Person(name: String, age: Int){
+    def this(){
+      this("",11)
+    }
+  }
 
   class Person1(name:String,age:Int)
 
   def wqcase(){
 
     val honest = new Person1("Honest",34)
+    val honest1 = new Person()
+    val honest2 = Person(_,_)
     honest match {
       case x: Person1 => println("honest")
     }
