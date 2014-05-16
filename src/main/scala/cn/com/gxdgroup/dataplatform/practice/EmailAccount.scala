@@ -20,4 +20,22 @@ object EmailAccount {
   val bean = new EmailAccount()
   bean.setAccountName("dd")
   bean.getAccountName
+
+}
+
+class OtherMail(
+  val username: String,
+  val passwd: String,
+
+  val protoclo: String)
+
+object  testModel{
+  def main(args: Array[String]) {
+    val mail = new EmailAccount
+    mail.setPassword("dsxlcyrg")
+    println(mail.getPassword)
+
+    val other = new OtherMail("user","passwd","smtp")
+    println(other.username)
+  }
 }
