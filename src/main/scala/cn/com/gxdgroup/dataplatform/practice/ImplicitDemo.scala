@@ -18,7 +18,7 @@ class InsertA(insert : ImplicitDemo){
 object test1 extends App{
   implicit def kkk(insert : ImplicitDemo) = new InsertA(insert)
   val test = new ImplicitDemo
-  test.add("wq")
+  test.add("wq1")
   //------------------------------------------------------
 
   def testParam(str: String)(implicit name: String){
