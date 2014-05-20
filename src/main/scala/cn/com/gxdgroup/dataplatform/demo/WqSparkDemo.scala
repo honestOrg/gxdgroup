@@ -63,6 +63,7 @@ object WqSparkDemo {
 
     data.filter(_.split(' ').length == 3).map(line => {val field = line.split(' ');(field(0),field(1))}).reduceByKey(_ + _)
 
+
   }
 
 }
