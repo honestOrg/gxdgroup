@@ -1,4 +1,4 @@
-package cn.com.gxdgroup.dataplatform.demo;
+package cn.com.gxdgroup.dataplatform.demojava;
 
 import org.apache.commons.lang.StringUtils;
 import redis.clients.jedis.Jedis;
