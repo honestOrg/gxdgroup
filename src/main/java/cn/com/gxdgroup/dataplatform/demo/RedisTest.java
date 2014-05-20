@@ -25,7 +25,7 @@ public class RedisTest {
 
         //Pipeline pipe = j.pipelined();
 
-        System.out.println("connect time:"+(System.currentTimeMillis()-start));
+        System.out.println("connect time1:"+(System.currentTimeMillis()-start));
 
         long start1 = System.currentTimeMillis();
 
