@@ -1,10 +1,8 @@
 package cn.com.gxdgroup.dataplatform.demo;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -35,14 +33,14 @@ public class JavaWorldCount {
             System.err.println("Usage: JavaWordCount <master> <file>");
             System.exit(1);
         }
-        JavaSparkContext ctx = new JavaSparkContext(args[0], "WqWordCount",System
+        JavaSparkContext ctx = new JavaSparkContext(args[0], "WqWordCount",
                 System.getenv("SPARK_HOME"), System.getenv("SPARK_EXAMPLES_JAR"));
         JavaRDD<String> file = ctx.textFile(args[1], 1);
 
         Configuration conf = new Configuration();
         //JavaPairRDD<LongWritable, Text> lines1 = ctx.newAPIHadoopFile(args[1],ETLLineInputFormat.class, LongWritable.class, Text.class, new Job().getConfiguration());
 
-        System.out.println(lines.count());
+        System.out.println(file.count());
 
 //        JavaRDD<String> split = lines.flatMap(new FlatMapFunction<Tuple2<LongWritable,Text>, String>(){
 //            public Iterable<String> call(Tuple2<LongWritable, Text> pair){
