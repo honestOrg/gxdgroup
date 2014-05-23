@@ -1,6 +1,6 @@
 package cn.com.gxdgroup.dataplatform.avm.function
 
-import java.util.Date
+import java.util.{Date, Calendar}
 import cn.com.gxdgroup.dataplatform.avm.model._
 import org.apache.spark.SparkContext._
 import org.apache.spark.{SparkContext, SparkConf}
@@ -18,7 +18,7 @@ import cn.com.gxdgroup.dataplatform.avm.model.Section
 import cn.com.gxdgroup.dataplatform.avm.model.Threshold
 import cn.com.gxdgroup.dataplatform.avm.model.AVMBargain
 import org.apache.commons.lang.StringUtils
-import java.util.Calendar
+import org.apache.spark.rdd.RDD
 
 /**
  * Created by ThinkPad on 14-5-20.
@@ -43,10 +43,11 @@ object GxdPriceDriver {
       //先假设是逗号分隔
       val tt = line.split(",")
       //此处还需要修改,其中tt(1)代表的是阈值的名
-      (tt(1),  Threshold(tt(0).toInt,tt(1),tt(2).toInt))
+      (tt(1),  Threshold(tt(0).toInt,tt(1),tt(2).toInt,tt(3).toDouble,tt(4).toDouble,tt(5).toDouble,tt(6).toDouble,tt(7).toDouble,tt(8).toDouble,tt(9).toDouble,tt(10).toDouble,tt(11).toDouble,tt(12).toDouble,tt(13).toDouble,tt(14).toDouble,tt(15).toDouble,tt(16).toDouble,tt(17).toDouble,tt(18).toDouble,tt(19).toDouble,tt(20).toDouble,tt(21).toDouble))
     })
     //初始化的时候直接输出
     val threadTarget = thresholdArray.filter(lines => lines._1.equals("测试阈值")).first()
+
 
     //其中key是城市，val是城市、价格 、时间
     //注意这个Date有可能不对
@@ -57,6 +58,8 @@ object GxdPriceDriver {
       val cityName = IndexDetail_Arrays(1)
       (cityName,index)
     }).groupByKey().cache()
+
+    val beijingIndexList = AllIndexMapList.filter(aiml=> aiml._1.equals("北京")).take(1).head._2.toList
 
     val buildYear_coefficient =Map[Double,Double]("0".toDouble -> 1,"1".toDouble -> 0.95,"2".toDouble ->0.9,"3".toDouble ->0.84,"4".toDouble ->0.8,"5".toDouble ->0.75,"6".toDouble->0.7,"7".toDouble->0.65,"8".toDouble->0.6,"9".toDouble-> 0.55,"10".toDouble-> 0.5,"11".toDouble-> 0.45,"12".toDouble-> 0.4,"13".toDouble-> 0.35,"14".toDouble-> 0.3,"15".toDouble-> 0.25,"16".toDouble-> 0.2,"17".toDouble-> 0.15,"18".toDouble-> 0.1)
     val floor_coefficient = Map[Int,Double](0 ->1,1 ->0.85,2 ->0.6)
@@ -72,7 +75,7 @@ object GxdPriceDriver {
     val AllCommunity=GetAllCommunity.map(line =>{
       //先假设是逗号分隔
       val target = line.split(",")
-      var community= new Community(target(0),target(1),target(2),target(3),target(4).toDouble,target(5).toDouble,null)
+      var community= new Community(target(0),target(1),target(2),target(3),target(4).toDouble,target(5).toDouble,BigDecimal(target(6)),BigDecimal(target(7)),BigDecimal(target(8)),BigDecimal(target(9)),BigDecimal(target(10)),BigDecimal(target(11)),BigDecimal(target(12)),BigDecimal(target(13)),BigDecimal(target(14)),BigDecimal(target(15)),BigDecimal(target(16)),BigDecimal(target(17)),BigDecimal(target(18)),BigDecimal(target(19)),BigDecimal(target(20)),BigDecimal(target(21)),BigDecimal(target(22)),BigDecimal(target(23)),BigDecimal(target(24)),null)
       //其中5,6代表的是经纬度的数据数组下标到时候还需要改,0下标代表的是小区名
       val SimilarCommunity =
         GetAllCommunity.map(desc =>(desc,Utils.GetDistance(target(5).toDouble,
@@ -82,7 +85,7 @@ object GxdPriceDriver {
       //下面avmModel
       val avmModel = SimilarCommunity.map(line => {
         val arrays = line._1.split(",")
-        val community = Community(arrays(0),arrays(1),arrays(2),arrays(3),arrays(4).toDouble,arrays(5).toDouble,null)
+        val community = new Community(arrays(0),arrays(1),arrays(2),arrays(3),arrays(4).toDouble,arrays(5).toDouble,BigDecimal(arrays(6)),BigDecimal(arrays(7)),BigDecimal(arrays(8)),BigDecimal(arrays(9)),BigDecimal(arrays(10)),BigDecimal(arrays(11)),BigDecimal(arrays(12)),BigDecimal(arrays(13)),BigDecimal(arrays(14)),BigDecimal(arrays(15)),BigDecimal(arrays(16)),BigDecimal(arrays(17)),BigDecimal(arrays(18)),BigDecimal(arrays(19)),BigDecimal(arrays(20)),BigDecimal(arrays(21)),BigDecimal(arrays(22)),BigDecimal(arrays(23)),BigDecimal(arrays(24)),null)
         val distance:Double = line._2
         val avmCommunity = AVMCommunity()
         avmCommunity.Community = community
@@ -108,38 +111,17 @@ object GxdPriceDriver {
     val AllBargainMapListBroadCast = sc.broadcast(AllBargainMapList)
 
 
-    def getResult(str:String):Result = {
-      val rst = Result(0,null)
-      val arrays = str.split(",")
-      val CommunityName = arrays(0)
-      val floor =arrays(1).toInt
-      val totalFloor = arrays(2).toInt
-      val square = arrays(3).toDouble
-      val faceTo = arrays(4)
-      val buildYear = arrays(5)
-      val Location_Longitude:Double = 0
-      val Location_Latitude:Double = 0
-      rst
-    }
-
     def process(pcommunityName:String, pfloor:Int, pTotalFloor:Int,psquare:Double,pfaceTo:String,pbuildYear:String,
-                pLocation_Longitude:Double,pLocation_Latitude:Double)={
+                pLocation_Longitude:Double=0,pLocation_Latitude:Double=0)={
 
-      val  targetCommunity = AllCommunityBroadcast.value.filter(line =>(line._1.CommunityName.equals(pcommunityName))).take(1).toList
-
+      val  targetCommunity = AllCommunityBroadcast.value.filter(line =>(line._1.CommunityName.equals(pcommunityName))).take(1)
+//初始化……………………………………………………………………………………………………
+      var pfaceToBargainList :List[((Double,Bargain,BigDecimal))] =Nil
       if(!targetCommunity.isEmpty){
         //其实只有一个
         val  bargainList = AllBargainMapListBroadCast.value.filter(line =>
           line._1.equals(targetCommunity.head._1.CommunityID)).take(1).toList
 
-        val AVMBargainList=bargainList.head._2.map(barg => {
-          val avmBargain = AVMBargain()
-          avmBargain.Case = barg
-          avmBargain.Weight=1
-          avmBargain.adjustPrice = barg.bargainPrice
-          avmBargain
-
-        })
         //下面是对本小区的过滤，首先是时间过滤、楼盘类型过滤开始**********
 
         val mineCoummunityBargain = bargainList.head._2.filter(line => (new Date().
@@ -227,19 +209,317 @@ object GxdPriceDriver {
         val  c = Calendar.getInstance()
         val timeBargain = buildYearBargain.map(byg => {
           //这块会有一些问题，主要看你传入的日期是什么格式的
-          weight = byg._1 * Math.pow((maxMonth +1 -((c.get(Calendar.YEAR)-byg._2.bargainTime.getYear)*12 + (c.get(Calendar.MONTH) - byg._2.bargainTime.getMonth)))*1.0/maxMonth,
-            timePowerBargain)
+
+//          weight = byg._1 * Math.pow((maxMonth +1 -((c.get(Calendar.YEAR)-byg._2.bargainTime.getYear)*12 + (c.get(Calendar.MONTH) - byg._2.bargainTime.getMonth)))*1.0/maxMonth,
+//            timePowerBargain)
+
           (weight,byg._2)
         }).filter(_._1 !=0 )
       // 根据面积开始过滤
-      val square_adjust_coefficient =settingBroadCast.value("测试系数").squareAdjustCoefficient.takeRight(1000).toList
+      val square_adjust_coefficientList =settingBroadCast.value("测试系数").squareAdjustCoefficient.toList.sorted
+
+        val square_adjust_coefficientBargain=  timeBargain.map(tb =>{
+
+          val psquare_Cha = (Math.abs(psquare - tb._2.square)/psquare)
+         // weight = tb._1* square_adjust_coefficient.get(psquareRound).getOrElse(0.0)
+          val square_adjust_List = square_adjust_coefficientList.filter(line => line._1 > psquare_Cha)
+          if(!square_adjust_List.isEmpty){
+
+          val square_adjust_weight = square_adjust_List.map(line => line match{
+            case (x:Double,y:Double) => y
+            case _ => 0
+          }).head
+            weight = tb._1*square_adjust_weight
+          }else{
+            weight = tb._1 *0
+          }
+          (weight,tb._2)
+        }).filter(_._1 != 0)
+
+        //朝向过滤开始,现在其实没有做，留个口
+
+       val pfaceToBargain =  square_adjust_coefficientBargain.map(line => {
+          weight = line._1*1
+         //(权重，bargain，bargainPrice)
+          (weight,line._2,line._2.bargainPrice)
+        }).filter(_._1 > 0)
+        pfaceToBargainList = pfaceToBargain.toList
+//        if(pfaceToBargain.size > 5){
+//           pfaceToBargain.toList
+//
+//        }
+    }
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     var pfaceToBargainList2222 :List[((Double,Bargain,BigDecimal))] =Nil
+      if(true){
+      var similar:Double= settingBroadCast.value("测试系数").diffrentCommunity
+      val similarCommunityListReal = targetCommunity.isEmpty match {
+        case true => GetSimilarCommunity(pLocation_Longitude,pLocation_Latitude).collect()
+        case false =>  targetCommunity.head._2.collect().filter(scl =>
+          Math.abs((targetCommunity.head._1.FeatureSoilRankValue - scl.Community.FeatureSoilRankValue).toDouble) <= BigDecimal(threadTarget._2.SoilRank)&&
+          Math.abs((targetCommunity.head._1.FeatureBusCountValue - scl.Community.FeatureBusCountValue).toDouble) <= BigDecimal(threadTarget._2.BusCount)&&
+          Math.abs((targetCommunity.head._1.FeatureParkValue - scl.Community.FeatureParkValue).toDouble) <= BigDecimal(threadTarget._2.Park)&&
+          Math.abs((targetCommunity.head._1.FeatureAmenitiesValue - scl.Community.FeatureAmenitiesValue).toDouble) <= BigDecimal(threadTarget._2.Amenities)&&
+          Math.abs((targetCommunity.head._1.FeatureTrafficControlValue - scl.Community.FeatureTrafficControlValue).toDouble) <= BigDecimal(threadTarget._2.TrafficControl)&&
+          Math.abs((targetCommunity.head._1.FeatureAmenitiesValue - scl.Community.FeatureAmenitiesValue).toDouble) <= BigDecimal(threadTarget._2.Amenities)&&
+          Math.abs((targetCommunity.head._1.FeatureGoodFactorValue - scl.Community.FeatureGoodFactorValue).toDouble) <= BigDecimal(threadTarget._2.GoodFactor)&&
+          Math.abs((targetCommunity.head._1.FeatureBadFactorValue - scl.Community.FeatureBadFactorValue).toDouble) <= BigDecimal(threadTarget._2.BadFactor)&&
+          Math.abs((targetCommunity.head._1.FeatureScopeValue - scl.Community.FeatureScopeValue).toDouble) <= BigDecimal(threadTarget._2.Scope)&&
+          Math.abs((targetCommunity.head._1.FeatureBuildYearValue - scl.Community.FeatureBuildYearValue).toDouble) <= BigDecimal(threadTarget._2.BuildYear)&&
+          Math.abs((targetCommunity.head._1.FeatureHeatingValue - scl.Community.FeatureHeatingValue).toDouble) <= BigDecimal(threadTarget._2.Heating)&&
+          Math.abs((targetCommunity.head._1.FeatureIsSchoolValue - scl.Community.FeatureIsSchoolValue).toDouble) <= BigDecimal(threadTarget._2.IsSchool)&&
+          Math.abs((targetCommunity.head._1.FeatureStyleValue - scl.Community.FeatureStyleValue).toDouble) <= BigDecimal(threadTarget._2.Style)&&
+          Math.abs((targetCommunity.head._1.FeaturePropertyLevelValue - scl.Community.FeaturePropertyLevelValue).toDouble) <= BigDecimal(threadTarget._2.PropertyLevel)&&
+          Math.abs((targetCommunity.head._1.FeatureEnvironmentValue - scl.Community.FeatureEnvironmentValue).toDouble) <= BigDecimal(threadTarget._2.Environment)&&
+          Math.abs((targetCommunity.head._1.FeatureDensityValue - scl.Community.FeatureDensityValue).toDouble) <= BigDecimal(threadTarget._2.Density)&&
+          Math.abs((targetCommunity.head._1.FeatureFARValue - scl.Community.FeatureFARValue).toDouble) <= BigDecimal(threadTarget._2.Far)&&
+          Math.abs((targetCommunity.head._1.FeatureDistanceFromCenterValue - scl.Community.FeatureDistanceFromCenterValue).toDouble) <= BigDecimal(threadTarget._2.DistanceFromCenter)&&
+          Math.abs((targetCommunity.head._1.FeatureDistanceFromTradingValue - scl.Community.FeatureDistanceFromTradingValue).toDouble) <= BigDecimal(threadTarget._2.DistanceFromTrading)&&
+          Math.abs((targetCommunity.head._1.FeatureDistanceFromLandScapeValue - scl.Community.FeatureDistanceFromLandScapeValue).toDouble) <= BigDecimal(threadTarget._2.DistanceFromLandScape))
+      }
+
+
+      //如果同一个小区，权值为1，否则为传入参数,可动态调整
+      similarCommunityListReal.map(scl => {
+        similar = similar * Math.pow((settingBroadCast.value("测试系数").maxDistance + 1 - scl.Distance) / settingBroadCast.value("测试系数").maxDistance, settingBroadCast.value("测试系数").distancePower);
+//        GetBargain(scl.Community.CommunityID).map(line =>{
+//          val avmBargain = AVMBargain()
+//          avmBargain.adjustPrice =line.bargainPrice
+//          avmBargain.Case = line
+//          avmBargain.Weight =similar
+//        })
+         val  bargainList2 =  GetBargain(scl.Community.CommunityID)
+//*********************************************************************************************************
+        val mineCoummunityBargain2 = bargainList2.filter(line => (new Date().
+          getTime-line.bargainTime.getTime)>= settingBroadCast.value("测试系数").maxMonth*3600).filter(
+            (line => (line.totalFloor <= threadTarget._2.CommunityStyle
+              ||pTotalFloor>threadTarget._2.CommunityStyle)
+              &&(pTotalFloor<=threadTarget._2.CommunityStyle||
+              line.totalFloor>threadTarget._2.CommunityStyle))
+          )
+
+        //(1,(1,a))楼层分段过滤开始**********
+        val flRuleList = settingBroadCast.value("测试系数").floorRule.toList
+
+        val flRulePoint_KeyVal2 = flRuleList.filter(flr =>pfloor >= flr._2.small&&pfloor<flr._2.big)
+
+        val flRulePoint_Key2 = flRulePoint_KeyVal2.map(line => line match{
+          case (x:Int,y :Section) => x
+          case _ => 0
+        }).head
+
+        var weight:Double =1
+        //下面的这个是个Map
+        val flCoefficientList = settingBroadCast.value("测试系数").floorCoefficient
+        //楼层分段过滤开始
+        val bargainFloorRule2 = mineCoummunityBargain2.map(cb =>{
+          val flr_KeyVal=  flRuleList.filter(frl=>
+            cb.totalFloor>=frl._2.small&&cb.totalFloor<frl._2.big)
+          val targetfloorIntKey = flr_KeyVal.isEmpty match {
+            case true => 0
+            case false => flr_KeyVal.head._1
+          }
+
+          weight = weight*flCoefficientList.get(Math.abs(flRulePoint_Key2 - targetfloorIntKey)).getOrElse(0.0)
+          (weight,cb)
+        }).filter(_._1 != 0)
+
+        //面积分段过滤开始
+        val squareList = settingBroadCast.value("测试系数").squareRule.toList
+
+        val pointsquare_KeyVal2= squareList.filter(sL =>
+          psquare >= sL._2.small&&psquare<sL._2.big )
+        //界面输入的值计算
+        val pointSqureInt2 = pointsquare_KeyVal2.map(line => line match{
+          case (x:Int,y: Section) => x
+          //这个值是默认值
+          case _ =>0
+        }).head
+
+        val bargainSquare2 =bargainFloorRule2.map(bfr =>{
+          val slTarget_KeyVal = squareList.filter(sL => bfr._2.square>= sL._2.small &&
+            bfr._2.square < sL._2.big)
+
+          val slTarget_KeyInt =  slTarget_KeyVal.map(line => line match{
+            case(x:Int,y:Section) => x
+            case _ => 0
+          }).head
+          //因为bfr._1是double的所以默认是0.0
+          weight =  bfr._1*flCoefficientList.get(Math.abs(pointSqureInt2 - slTarget_KeyInt)).getOrElse(0.0)
+          (weight,bfr._2)
+        }).filter(_._1 != 0)
+
+        //楼栋
+
+        //建成年份开始过滤, 输入是经过面积过滤后的
+        var PointbuildYear =0
+        var tagertbuildYear = 0
+        val buildYearCofficent = settingBroadCast.value("测试系数").buildYearCoefficient
+        val buildYearBargain2 = bargainSquare2.map(bgs => {
+          if(StringUtils.isNumeric(pbuildYear)&& StringUtils.isNumeric(bgs._2.BuildYear)){
+            PointbuildYear = pbuildYear.toInt
+            tagertbuildYear = bgs._2.BuildYear.toInt
+
+            val buildCha = Math.abs(PointbuildYear-tagertbuildYear)
+            val buildKey = buildYearCofficent.get(buildCha).getOrElse(0.0)
+            weight = bgs._1 * buildKey
+            (weight,bgs._2)
+          }else{
+            (0,bgs._2)
+          }
+        }).filter(_._1 != 0)
+
+        //根据挂牌时间开始过滤
+        val maxMonth = settingBroadCast.value("测试系数").maxMonth
+        val timePowerBargain =settingBroadCast.value("测试系数").bargainTimePower
+        val  c = Calendar.getInstance()
+        val timeBargain2 = buildYearBargain2.map(byg => {
+          //这块会有一些问题，主要看你传入的日期是什么格式的
+//          weight = byg._1 * Math.pow((maxMonth +1 -((c.get(Calendar.YEAR)-byg._2.bargainTime.getYear)*12 + (c.get(Calendar.MONTH) - byg._2.bargainTime.getMonth)))*1.0/maxMonth,
+//            timePowerBargain)
+          (weight,byg._2)
+        }).filter(_._1 !=0 )
+        // 根据面积开始过滤
+        val square_adjust_coefficientList =settingBroadCast.value("测试系数").squareAdjustCoefficient.toList.sorted
+
+        val square_adjust_coefficientBargain2=  timeBargain2.map(tb =>{
+
+          val psquare_Cha = (Math.abs(psquare - tb._2.square)/psquare)
+          // weight = tb._1* square_adjust_coefficient.get(psquareRound).getOrElse(0.0)
+          val square_adjust_List = square_adjust_coefficientList.filter(line => line._1 > psquare_Cha)
+          if(!square_adjust_List.isEmpty){
+
+            val square_adjust_weight = square_adjust_List.map(line => line match{
+              case (x:Double,y:Double) => y
+              case _ => 0
+            }).head
+            weight = tb._1*square_adjust_weight
+          }else{
+            weight = tb._1 *0
+          }
+          (weight,tb._2)
+        }).filter(_._1 != 0)
+
+        //朝向过滤开始,现在其实没有做，留个口
+
+        val pfaceToBargain2 =  square_adjust_coefficientBargain2.map(line => {
+          weight = line._1*1
+          (weight,line._2,line._2.bargainPrice)
+        }).filter(_._1 > 0)
+        pfaceToBargainList2222 = pfaceToBargain2.toList
+
+      })
 
 
 
+  }
+      //两个最终结果进行合并
+ val pfaceToBargainfinalList = pfaceToBargainList2222++pfaceToBargainList
+
+      //留一个口价格
+      var resultprice =Result()
+      resultprice.price=0
+      resultprice.list=null
+      //&&&&要和和
+      val date_Cha = new Date().getTime-3600*24*90
+      //按时间进行降序排序
+      val newvalueList = beijingIndexList.filter(bjsi =>
+        bjsi.dateTime.getTime >= date_Cha
+      ).sortBy(x => - x.dateTime.getTime).take(1).toList
+
+
+      val newValue =  newvalueList.isEmpty match
+      {
+        case true => 0
+        case false => newvalueList.head.price.toDouble
+      }
+
+
+      var fianlPriceAnd5house = null
+     if(!pfaceToBargainfinalList.isEmpty) {
+       // case true => List(0,new Bargain("0","0",0.0,0,0,"0",new Date(),BigDecimal(0)),BigDecimal(0))
+      //  case false =>pfaceToBargainfinalList.map(line =>{
+      val pfaceToBargainfinalList22 =  pfaceToBargainfinalList.map(line =>{
+          val oldvalueList = beijingIndexList.filter(index =>
+            index.dateTime.getYear == line._2.bargainTime.getYear&&
+              index.dateTime.getMonth ==line._2.bargainTime.getMonth
+          ).take(1).toList
+          val oldvalue = oldvalueList.isEmpty match{
+            case true => 0
+            case false => oldvalueList.head.price.toDouble
+          }
+
+          (line._1,line._2,line._2.bargainPrice * newValue / oldvalue)
+
+        }).filter(ptb => ptb._2.bargainTime.getTime+6*30*3600 < new Date().getTime ).sortBy(x => - x._1).take(5).toList
+       //这就是最终值
+        if(pfaceToBargainfinalList22.size >4){
+          var avmBagainFianlReault = AVMBargain()
+          var sumWeigth=0.0
+          var sumadjust_Price=0.0
+          var list5FianlBargain:List[AVMBargain] =List()
+          pfaceToBargainfinalList22.map(x =>{
+
+            sumWeigth +=x._1
+
+            avmBagainFianlReault.adjustPrice =x._3
+            avmBagainFianlReault.Case = x._2
+            avmBagainFianlReault.Weight = x._1
+            list5FianlBargain = List(avmBagainFianlReault) ++ list5FianlBargain
+            // rst.Price = Math.Ceiling(cases.Sum(m => m.AdjustPrice * (decimal)m.Weight) / (decimal)sumWeight);
+          })
+          pfaceToBargainfinalList22.map(x =>{
+            sumadjust_Price +=(x._3.toDouble* x._1 /sumWeigth)
+          })
+          var sumadjust_Price11 = sumadjust_Price
+          //下面是最终的价钱
+         val priceFinal333 =  Math.ceil(sumadjust_Price11)
+
+
+          resultprice.price = priceFinal333
+          resultprice.list =list5FianlBargain
+          resultprice
+
+        }
+      }else{
+       resultprice
+     }
 
     }
-  }
 
+
+
+
+
+
+
+
+
+
+
+
+
+    def  GetSimilarCommunity( pLongitude:Double, pLatitude:Double)=
+    {
+       AllCommunityBroadcast.value.map(line => {
+         //key value对，其中key是Community，value是具体的距离
+        (line._1,Utils.GetDistance(pLatitude,pLongitude,
+          line._1.LocationLatitude,line._1.LocationLongitude))
+      }).filter(_._2 < settingBroadCast.value("测试系数").maxDistance).map(line2 => {
+          val avmc = AVMCommunity()
+         avmc.Community = line2._1
+         avmc.Distance =line2._2
+         avmc
+       })
+    }
+
+
+    def   GetBargain(pCommunityID:String)=
+    {
+      AllBargainMapList.filter(abml => abml._1.equals(pCommunityID)).collect().head._2.toList
+
+    }
 }
 }
 
