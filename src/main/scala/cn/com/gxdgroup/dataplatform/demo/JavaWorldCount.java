@@ -49,9 +49,7 @@ public class JavaWorldCount {
 //
 //        });
 
-        JavaRDD<String> words = file.flatMap(new FlatMapFunction<String, String>() {
-            public Iterable<String> call(String s) { return Arrays.asList(s.split(" ")); }
-        });
+        JavaRDD<String> words = getStringJavaRDD(file);
 
 
         JavaPairRDD<String, Integer> maper = words.map(new PairFunction<String, String, Integer>() {
@@ -96,5 +94,11 @@ public class JavaWorldCount {
         System.exit(0);
 
 
+    }
+
+    public static JavaRDD<String> getStringJavaRDD(JavaRDD<String> file) {
+        return file.flatMap(new FlatMapFunction<String, String>() {
+                public Iterable<String> call(String s) { return Arrays.asList(s.split(" ")); }
+            });
     }
 }
