@@ -91,7 +91,7 @@ object MapPartitons {
       println("list2:"+list2.size)
       iter.map{x=>
         var ii =0
-        list2.map{y=>
+        list2.par.map{y=>
           ii+=x._2
           //println(ii)
         }
@@ -105,6 +105,8 @@ object MapPartitons {
     val ss= List(("7",1),("8",2),("8",3),("7",4),("8",5),("6",5),("6",9))
 
     val ss1 = sc.parallelize(ss)
+
+
 
     val ss2 = ss1.groupBy(x=>x._1)
 

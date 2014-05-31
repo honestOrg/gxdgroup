@@ -1,6 +1,7 @@
 package cn.com.gxdgroup.dataplatform.demo;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -12,6 +13,7 @@ import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * Created by wq on 5/23/14.
@@ -58,7 +60,7 @@ public class JavaWorldCount {
             }
         });
 
-		    /*JavaPairRDD<String,Integer> Maper = lines1.map(new PairFunction<Tuple2<LongWritable,Text>,String,Integer>(){
+		    /*JavaPairRDD<String,Integer> Maper = words.map(new PairFunction<Tuple2<LongWritable,Text>,String,Integer>(){
 		    	Text keys = new Text();
 		    	IntWritable values = new IntWritable();
 		    	Pattern pattern  = Pattern.compile("\\W+");

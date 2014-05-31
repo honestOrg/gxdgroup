@@ -75,7 +75,6 @@ object SecondarySort {
     val kankan3 = JavaWorldCount.getStringJavaRDD(sc.parallelize(slist).toJavaRDD())
     println(kankan3.toArray())
 
-
   }
 
 }
