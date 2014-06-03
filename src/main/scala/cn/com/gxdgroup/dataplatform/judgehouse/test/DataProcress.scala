@@ -2,8 +2,6 @@ package cn.com.gxdgroup.dataplatform.judgehouse.test
 
 import java.security.MessageDigest
 import scala.collection.mutable.ArrayBuffer
-import scala.io.Source
-import java.io.PrintWriter
 
 /**
  * Created by SZZ on 14-5-23
@@ -41,7 +39,7 @@ object DataProcress {
     val t = in.split("\t", -1)
     val s = new Array[String](58)
     val k = new Array[String](18)
-    if (t.length != 48 || in.startsWith("RECMETAID")) null
+    if (t.length != 48 || in.startsWith("RECMETAID")) (None, in)
     else {
 //      s(0) = randMd5Str()
       s(4) = t(4)
@@ -99,12 +97,13 @@ object DataProcress {
       s(57) = t(11)
 
       //楼栋ID
-//      s(7) = k(0) =
-//      k(1) = t(23)
-//      k(2) = t(31)
-//      k(3) = s(45)
-//      (s.map(x => if (x == null) "" else x).mkString("|"), k.map(x => if (x == null) "" else x).mkString("|"))
-      s.map(x => if (x == null) "" else x).mkString("|")
+      s(7) = ""
+      k(0) = ""
+      k(1) = t(23)
+      k(2) = t(31)
+      k(3) = s(45)
+      (s.map(x => if (x == null) "" else x).mkString("|"), k.map(x => if (x == null) "" else x).mkString("|"))
+      //      s.map(x => if (x == null) "" else x).mkString("|")
     }
   }
 
@@ -146,24 +145,24 @@ object DataProcress {
   }
 
 
-  def parse(fileName: String, out: String) = {
+  //  def parse(fileName: String, out: String) = {
+  //
+  //    val source = Source.fromFile(fileName)
+  //    val pw = new PrintWriter(out)
+  //    try {
+  //      //      source.getLines().drop(1).map(t => processData(t)).filterNot(_ == "").foreach(p => pw.println(p))
+  //      val data = source.getLines().drop(1).map(t => processData(t)).filter {
+  //        case (null, null) => false
+  //        case _ => true
+  //      }
+  //
+  //    }
+  //    finally source.close()
+  //    pw.close()
+  //  }
 
-    val source = Source.fromFile(fileName)
-    val pw = new PrintWriter(out)
-    try {
-      //      source.getLines().drop(1).map(t => processData(t)).filterNot(_ == "").foreach(p => pw.println(p))
-      val data = source.getLines().drop(1).map(t => processData(t)).filter {
-        case (null, null) => false
-        case _ => true
-      }
 
-    }
-    finally source.close()
-    pw.close()
-  }
-
-
-  def main(args: Array[String]) = {
-    parse("d:/todo/ss.txt", "d:/todo/zz.txt")
-  }
+  //  def main(args: Array[String]) = {
+  //    parse("d:/todo/ss.txt", "d:/todo/zz.txt")
+  //  }
 }
