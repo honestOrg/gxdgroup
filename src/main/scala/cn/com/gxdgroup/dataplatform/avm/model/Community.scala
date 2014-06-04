@@ -5,7 +5,7 @@ import java.util.Date
  * Created by ThinkPad on 14-5-20.
  */
 
- class Community (
+ class Community(
   val CommunityID: String,
   val CommunityName: String,
   val CountryName: String ,
@@ -32,9 +32,10 @@ import java.util.Date
     val FeatureDistanceFromTradingValue:BigDecimal,
     val FeatureDistanceFromLandScapeValue:BigDecimal,
     var SimilarCommunity:List[AVMCommunity]
-  ){
+  )extends Serializable{
 
     @BeanProperty var BargainList:List[Bargain]=null
+
   }
 case class AVMCommunity(){
   var Community:Community=null
@@ -45,25 +46,25 @@ case class Threshold(
     val  id:Int ,
     val  name:String,
     val  CommunityStyle:Int,
-       val  SoilRank :Double,
-       val  BusCount :Double,
-       val  Park :Double,
-       val  Amenities :Double,
-       val  TrafficControl :Double,
-       val  GoodFactor :Double,
-       val  BadFactor :Double,
-       val  Scope :Double,
-       val  BuildYear :Double,
-       val  Heating :Double,
-       val  IsSchool :Double,
-       val  Style :Double,
-       val  PropertyLevel :Double,
-       val  Environment :Double,
-       val  Density :Double,
-       val  Far :Double,
-       val  DistanceFromCenter :Double,
-       val  DistanceFromTrading :Double,
-       val  DistanceFromLandScape :Double
+    val  SoilRank :Double,
+    val  BusCount :Double,
+    val  Park :Double,
+    val  Amenities :Double,
+    val  TrafficControl :Double,
+    val  GoodFactor :Double,
+    val  BadFactor :Double,
+    val  Scope :Double,
+    val  BuildYear :Double,
+    val  Heating :Double,
+    val  IsSchool :Double,
+    val  Style :Double,
+    val  PropertyLevel :Double,
+    val  Environment :Double,
+    val  Density :Double,
+    val  Far :Double,
+    val  DistanceFromCenter :Double,
+    val  DistanceFromTrading :Double,
+    val  DistanceFromLandScape :Double
                       )
 
 case class Bargain(
@@ -117,7 +118,7 @@ case class Index(
    val  city:String,//城市
    val  price:BigDecimal,//价格
    val  dateTime:Date  //时间
-   )
+)
 case class Result(){
    var price:BigDecimal =0
    var list:List[AVMBargain] =null

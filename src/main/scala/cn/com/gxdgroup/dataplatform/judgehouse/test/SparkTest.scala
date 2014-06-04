@@ -4,7 +4,8 @@ import org.apache.hadoop.mapred.TextInputFormat
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.SparkContext
 import org.apache.spark.scheduler.InputFormatInfo
-import org.apache.spark.rdd.{HadoopRDD, RDD}
+import java.util.Date
+import java.text.SimpleDateFormat
 
 /**
  * Created by SZZ on 14-5-22
@@ -12,7 +13,7 @@ import org.apache.spark.rdd.{HadoopRDD, RDD}
 object SparkTest {
 
   def main(args: Array[String]) = {
-    if (args.length < 2 || args.length > 3) {
+    if (args.length == 0) {
       System.err.println("USAGE [master]  input output")
       System.exit(-1)
     }
@@ -23,11 +24,27 @@ object SparkTest {
     }
 
     val conf = SparkHadoopUtil.get.newConfiguration()
-    val sc = new SparkContext(master, "judgeHouse", System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass), Map(), InputFormatInfo.computePreferredLocations(Seq(new InputFormatInfo(conf, classOf[TextInputFormat], input))))
-    val data = sc.textFile(input).map(x => DataProcress.processData(x)).filter {
-      case null => false
-      case _ => true
-    }.saveAsTextFile(output)
+    val sc = new SparkContext(master, "judgeHouse", System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass), Map(),
+      InputFormatInfo.computePreferredLocations(Seq(new InputFormatInfo(conf, classOf[TextInputFormat], input))))
+    //val sc = new SparkContext("spark://cloud40:7077", "test",
+    //  System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
+    val data = sc.textFile(input).map(x => DataProcress.processData(x))
+    val error = data.filter {
+      case (None, _) => true
+      case _ => false
+    }
 
+    val succ = data.filter {
+      case (None, _) => false
+      case _ => true
+    }
+
+    val date = new Date()
+    val format = new SimpleDateFormat("yyyyMMddHHmmss")
+    val timeStr = format.format(date)
+
+    succ.map(p => p._1).saveAsTextFile(output + "/HOUSE/" + timeStr)
+    succ.map(p => p._2).saveAsTextFile(output + "/BUILDING/" + timeStr)
+    error.map(p => p._2).saveAsTextFile(output + "/ERROR/" + timeStr)
   }
 }
