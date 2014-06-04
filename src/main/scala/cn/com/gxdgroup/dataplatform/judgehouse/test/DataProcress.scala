@@ -153,7 +153,7 @@ object DataProcress {
     try {
       //      source.getLines().drop(1).map(t => processData(t)).filterNot(_ == "").foreach(p => pw.println(p))
       val data = source.getLines().drop(1).map(t => processData(t)).filter {
-        case (null, null) => false
+        //case (null, null) => false
         case _ => true
       }
 
