@@ -37,9 +37,12 @@ resolvers += Resolver.url("jboss", url("http://repository.jboss.org/nexus/conten
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
 {
   case PathList("com", "esotericsoftware", "minlog", xs @ _*) => MergeStrategy.first
-  case PathList("javax", "servlet", xs @ _*)         => MergeStrategy.first
-  case PathList("org", "apache", xs @ _*)         => MergeStrategy.first
-  case PathList("org", "eclipse", xs @ _*)         => MergeStrategy.first
+  case PathList("javax", "servlet", xs @ _*) => MergeStrategy.first
+  case PathList("org", "apache", xs @ _*)=> MergeStrategy.first
+  case PathList("org", "eclipse", xs @ _*) => MergeStrategy.first
+  case PathList("akka",  xs @ _*)=> MergeStrategy.first
+  case "application.conf" => MergeStrategy.concat
+  case "unwanted.txt"     => MergeStrategy.discard
   case x => old(x)
 }
 }

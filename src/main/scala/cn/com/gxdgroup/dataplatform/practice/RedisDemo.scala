@@ -59,25 +59,35 @@ object RedisDemo extends App {
 
     var start1 = System.currentTimeMillis()
 
-    r.pipeline{ p =>
-      for(i <-1 to 100){
-        p.hset("test11",i.toString,i.toString)
-      }
-    }
+//    r.pipeline{ p =>
+//      for(i <-1 to 100){
+//        p.hset("test11",i.toString,i.toString)
+//      }
+//    }
+
+//    val x =r.pipelineNoMulti(
+//          List(
+//              {() => r.set("key", "debasish")},
+//              {() => r.get("key")},
+//              {() => r.get("key1")},
+//              {() => r.lpush("list", "maulindu")},
+//              {() => r.lpush("key", "maulindu")}     // should raise an exception
+//              )
+//          )
 
     println("doing time :"+(System.currentTimeMillis()-start1)+" ms")
 
-    //val timeout = 2 minutes
+    val timeout = 2 minutes
 
-    /*val x = r.pipelineNoMulti(
+    val x = r.pipelineNoMulti(
       List(
-        {() => for(i <-1 to 1000001){
+        {() => for(i <-1 to 5){
           r.hset("test3",i.toString,i.toString)
           }
         }
       )
     )
-    val result = x.map{a => Await.result(a.future, timeout)}*/
+    val result = x.map{a => Await.result(a.future, timeout)}
 
 
   }
@@ -95,7 +105,6 @@ object RedisDemo extends App {
       }
 
     }
-
 
   }
 
@@ -120,5 +129,16 @@ object RedisDemo extends App {
       }
     }
   }
+
+  def ccc(commands: Seq[() => Any]) = {
+
+  }
+
+  val x =ccc(
+    List(
+    {() => ""},
+    {() => ""}
+    )
+  )
 
 }

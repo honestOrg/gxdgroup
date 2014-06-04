@@ -35,8 +35,10 @@ object CastDemo {
 
     caseList
 
+    println("!!!!!!!!!!!!!!")
+    isEmptyList()
 
-    caseNull()
+    //caseNull()
   }
 
 
@@ -57,6 +59,41 @@ object CastDemo {
     println(result1)
     println(result2)
     println(result3)
+  }
+
+  def isEmptyList(){   // case null
+    val list = List((1,"1"),(2,"2"))
+    val list2 = {
+      val dd =list.filter{
+        case (x:Int,y:String) => x >3
+      }
+      dd.isEmpty match {
+        case true => 0
+        case false => dd.head._1
+      }
+    }
+
+    println("list2:"+list2)
+
+    //println("cccc:"+list.take(1))
+//    val kan = list2.isEmpty match {
+//      case true => 0
+//      case false => list2.head._1
+//    }
+
+    //println(kan)
+//    val kankan = list.filter{
+//      case(x:Int,y:String) => !list.isEmpty
+//      //case _ => !list.isEmpty
+//    }.take(1)
+//    println(kankan)
+
+//    val list1 = List()
+//    val kankan1 = list1.map{
+//      case(x:Int,y:String) => x
+//      case _ => 0
+//    }.take(1)
+//    println(kankan1)
   }
 
   def caseList(){

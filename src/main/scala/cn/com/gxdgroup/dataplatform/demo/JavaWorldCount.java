@@ -1,6 +1,7 @@
 package cn.com.gxdgroup.dataplatform.demo;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -12,6 +13,7 @@ import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * Created by wq on 5/23/14.
@@ -49,9 +51,7 @@ public class JavaWorldCount {
 //
 //        });
 
-        JavaRDD<String> words = file.flatMap(new FlatMapFunction<String, String>() {
-            public Iterable<String> call(String s) { return Arrays.asList(s.split(" ")); }
-        });
+        JavaRDD<String> words = getStringJavaRDD(file);
 
 
         JavaPairRDD<String, Integer> maper = words.map(new PairFunction<String, String, Integer>() {
@@ -60,7 +60,7 @@ public class JavaWorldCount {
             }
         });
 
-		    /*JavaPairRDD<String,Integer> Maper = lines1.map(new PairFunction<Tuple2<LongWritable,Text>,String,Integer>(){
+		    /*JavaPairRDD<String,Integer> Maper = words.map(new PairFunction<Tuple2<LongWritable,Text>,String,Integer>(){
 		    	Text keys = new Text();
 		    	IntWritable values = new IntWritable();
 		    	Pattern pattern  = Pattern.compile("\\W+");
@@ -96,5 +96,11 @@ public class JavaWorldCount {
         System.exit(0);
 
 
+    }
+
+    public static JavaRDD<String> getStringJavaRDD(JavaRDD<String> file) {
+        return file.flatMap(new FlatMapFunction<String, String>() {
+                public Iterable<String> call(String s) { return Arrays.asList(s.split(" ")); }
+            });
     }
 }
