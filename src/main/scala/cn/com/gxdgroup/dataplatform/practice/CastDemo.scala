@@ -1,5 +1,8 @@
 package cn.com.gxdgroup.dataplatform.practice
 
+import java.util.Date
+import java.text.SimpleDateFormat
+
 /**
  * Created by wq on 14-5-13.
  */
@@ -38,7 +41,17 @@ object CastDemo {
     println("!!!!!!!!!!!!!!")
     isEmptyList()
 
-    //caseNull()
+    caseNull()
+
+    val a = List(1,2,3,4)
+    a.reduce((x,y)=>x+y)
+    a.reduce(_+_)
+    println("left:"+(0 /: a){(x,y) => x+y})
+    println("right:"+(a :\ 0){(x,y) => x+y})
+
+    (0 /: a){(x,y) => println("kankan left:"+y);1}
+    (a :\ 0){(x,y) => println("kankan right:"+x);1}
+
   }
 
 
