@@ -40,7 +40,7 @@ import scala.math.random
 /**
  * Created by ThinkPad on 14-6-3.
  */
-object TestListValue {
+object InitializeCommunity {
 
   def main(args: Array[String]){
     val sc = new SparkContext("spark://cloud40:7077", "gxd",
