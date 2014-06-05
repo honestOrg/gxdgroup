@@ -28,6 +28,9 @@ object JedisDemo {
     }
 
     destroyPool
+
+    /////////////////////////
+    
   }
 
   val config: JedisPoolConfig = new JedisPoolConfig
