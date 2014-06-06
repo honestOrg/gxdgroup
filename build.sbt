@@ -12,15 +12,15 @@ version := "1.0"
 scalaVersion := "2.10.3"
 
 libraryDependencies ++= Seq(
-  "org.apache.spark" % "spark-core_2.10" % "0.9.0-incubating",
-  "org.apache.hadoop" % "hadoop-client" % "2.0.0-mr1-cdh4.3.0" % "provided",
-  "org.apache.spark" % "spark-streaming_2.10" % "0.9.0-incubating" % "provided",
+  ("org.apache.spark" % "spark-core_2.10" % "0.9.0-cdh5.0.0"),
+  "org.apache.hadoop" % "hadoop-client" % "2.3.0-mr1-cdh5.0.0" % "provided",
+  "org.apache.spark" % "spark-streaming_2.10" % "0.9.0-cdh5.0.0" % "provided",
   "net.debasishg" % "redisclient_2.10" % "2.12",
   "redis.clients" % "jedis" % "2.1.0",
   "org.scalatest" % "scalatest_2.10" % "2.1.0" % "test"
 )
 
-resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+//resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
 resolvers += Resolver.url("cloudera", url("https://repository.cloudera.com/artifactory/cloudera-repos/."))
 
