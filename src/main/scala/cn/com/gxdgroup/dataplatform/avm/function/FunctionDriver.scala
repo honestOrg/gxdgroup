@@ -404,7 +404,7 @@ object FunctionDriver {
 
         x._1
     }
-    lg2.saveAsTextFile("lg/gxd/tableOne")
+    lg2.saveAsTextFile("lg/gxd/first")
 
 
 
@@ -415,7 +415,7 @@ object FunctionDriver {
         List(x._2,x._3,x._4,x._5,x._6)
     }
 
-    lg3.saveAsTextFile("lg/gxd/tableTwo")
+    lg3.saveAsTextFile("lg/gxd/second")
 
 
 
