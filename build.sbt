@@ -12,7 +12,7 @@ version := "1.0"
 scalaVersion := "2.10.3"
 
 libraryDependencies ++= Seq(
-  ("org.apache.spark" % "spark-core_2.10" % "0.9.0-cdh5.0.0"),
+  ("org.apache.spark" % "spark-core_2.10" % "0.9.0-cdh5.0.0" % "provided"),
   "org.apache.hadoop" % "hadoop-client" % "2.3.0-mr1-cdh5.0.0" % "provided",
   "org.apache.spark" % "spark-streaming_2.10" % "0.9.0-cdh5.0.0" % "provided",
   "net.debasishg" % "redisclient_2.10" % "2.12",
