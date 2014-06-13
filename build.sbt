@@ -17,6 +17,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" % "spark-streaming_2.10" % "0.9.0-cdh5.0.0" % "provided",
   "net.debasishg" % "redisclient_2.10" % "2.12",
   "redis.clients" % "jedis" % "2.1.0",
+  "com.esotericsoftware.kryo" % "kryo" % "2.24.0",
   "org.scalatest" % "scalatest_2.10" % "2.1.0" % "test"
 )
 
