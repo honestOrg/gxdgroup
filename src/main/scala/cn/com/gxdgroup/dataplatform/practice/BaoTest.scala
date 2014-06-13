@@ -3,7 +3,10 @@ package cn.com.gxdgroup.dataplatform.practice
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.apache.commons.lang.StringUtils
+import org.objenesis.strategy.StdInstantiatorStrategy
 import redis.clients.jedis.Jedis
+
+import scala.collection.mutable.MutableList
 
 /**
  * Created by bao on 14-5-14.
@@ -17,6 +20,8 @@ object BaoTest extends App {
 
   val k = new Kryo()
   k.register(classOf[Person])
+  k.setRegistrationRequired(false)
+  k.setInstantiatorStrategy(new StdInstantiatorStrategy())
   val person = new Person("ssssssss",40)
 //  person.name = "zhaoliu"
 //  person.age = 30
@@ -34,8 +39,31 @@ object BaoTest extends App {
 
   println(pp.name)
   println(pp.age)
+  println("/****************************************/")
 
 
+  k.register(classOf[MutableList[Person]])
+
+  val p1 = new Person("zhangsan", 20)
+  val p2 = new Person("zhangsan1", 21)
+  val p3 = new Person("zhangsan2", 22)
+  val p4 = new Person("zhangsan3", 23)
+  val p5 = new Person("zhangsan4", 24)
+  val p6 = new Person("zhangsan5", 25)
+  val list = MutableList(p1, p2, p3, p4, p5)
+
+  val out2 = new Output(1, 4096)
+  k.writeObject(out2, list)
+  jedis.set("ltest".getBytes(), out2.toBytes)
+
+  val bytes2 = jedis.get("ltest".getBytes())
+  val listResult = k.readObject(new Input(bytes2), classOf[MutableList[Person]])
+  listResult.foreach{
+    x =>
+      println(x.name)
+      println(x.age)
+      println("----------------------")
+  }
 
 
 //  private var age: Int = 0
