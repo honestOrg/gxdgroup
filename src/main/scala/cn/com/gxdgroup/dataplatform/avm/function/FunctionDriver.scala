@@ -626,6 +626,7 @@ val squareCoffientMap = settingBroadcast("测试系数").squareCoefficient
         weight = tb._1*square_adjust_weight
       }else{
         weight = tb._1 *0.0
+
       //  println("为空。。。。。。。。。")
       }
    //   println("面积开始过滤::::"+tb._2.id+":"+weight)
