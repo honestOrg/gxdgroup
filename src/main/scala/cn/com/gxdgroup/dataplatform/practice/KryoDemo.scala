@@ -6,6 +6,8 @@ import cern.jet.random.StudentT
 import scala.beans.BeanProperty
 import org.objenesis.strategy.StdInstantiatorStrategy
 import com.twitter.chill.EnumerationSerializer
+import com.esotericsoftware.kryo.serializers.MapSerializer
+import com.romix.scala.serialization.kryo._
 
 /**
  * Created by wq on 14-6-13.
@@ -80,11 +82,11 @@ object KryoDemo {
     kryo.register(classOf[scala.Enumeration#Value])
 
     // Serialization of Scala maps like Trees, etc
-    //kryo.addDefaultSerializer(classOf[scala.collection.Map[_,_]], classOf[ScalaMapSerializer])
-//    kryo.addDefaultSerializer(classOf[scala.collection.generic.MapFactory[scala.collection.Map]], classOf[ScalaMapSerializer])
+    kryo.addDefaultSerializer(classOf[scala.collection.Map[_,_]], classOf[MapSerializer])
+    kryo.addDefaultSerializer(classOf[scala.collection.generic.MapFactory[scala.collection.Map]], classOf[MapSerializer])
 
     // Serialization of Scala sets
-//    kryo.addDefaultSerializer(classOf[scala.collection.Set[_]], classOf[ScalaSetSerializer])
+    //kryo.addDefaultSerializer(classOf[scala.collection.Set[_]], classOf[SetSerializer])
 //    kryo.addDefaultSerializer(classOf[scala.collection.generic.SetFactory[scala.collection.Set]], classOf[ScalaSetSerializer])
 
     // Serialization of all Traversable Scala collections like Lists, Vectors, etc
