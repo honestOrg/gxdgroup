@@ -58,9 +58,9 @@ object FunctionDriver {
       (lines(0),line)
     }).collectAsMap()
 
-
     val collectMapinitializesSC =  initializesimlarCommunitys.map(line => {
-      var lines = line.split(",")
+      var lines = line.split("\t")
+      //println("line:"+line)
       (lines(0),line)
     }).groupByKey().collectAsMap()
 
@@ -178,63 +178,74 @@ object FunctionDriver {
 
         firstResultList = mapCalculateModel(bargainList,thresholds,setting,
           pcommunityID,pfloor,pTotalFloor,psquare,pfaceTo,pbuildYear,pLocation_Longitude,pLocation_Latitude)
-      //  println("firstResultList:::::"+firstResultList.size)
+      // println("firstResultList:$$$$$$$$$$$:"+firstResultList.size)
       }
 
-       //    println("\n\n************************************************\nSecond\n************************************")
-      //        + firstResultList.size)
+      //println("\n\n************************************************\nSecond\n************************************"       + firstResultList.size)
       if(firstResultList.size < 5){
-        var similar:Double= setting("测试系数").diffrentCommunity
+
       //     println("\n\n************************************************\nFive FIVE\n************************************")
         val similarCommunityListReal:List[(String,Double)] = targetCommunityList==null match {
           case true => GetSimilarCommunity2(GetAllCommunityToArray,setting,pLocation_Longitude,pLocation_Latitude).toList
           // case true => List()
           case false =>  collectMapinitializesSC.get(pcommunityID).map{x=>
+
+           // println("lai ba lai ba lai ba yiqi la ba ")
             x.toArray.filter(scl =>{
 
-              val array42Fields = scl.split(",")
+              val array42Fields = scl.split("\t")
+          //   println("###################:"+array42Fields)
               (
-                Math.abs((array42Fields(2).toDouble- array42Fields(22).toDouble)) <= BigDecimal(threadTarget._2.SoilRank)&&
-                  Math.abs((array42Fields(3).toDouble - array42Fields(23).toDouble)) <= BigDecimal(threadTarget._2.BusCount)&&
-                  Math.abs((array42Fields(4).toDouble - array42Fields(24).toDouble)) <= BigDecimal(threadTarget._2.Park)&&
-                  Math.abs((array42Fields(5).toDouble - array42Fields(25).toDouble)) <= BigDecimal(threadTarget._2.Amenities)&&
-                  Math.abs((array42Fields(6).toDouble - array42Fields(26).toDouble)) <= BigDecimal(threadTarget._2.TrafficControl)&&
-                  Math.abs((array42Fields(7).toDouble - array42Fields(27).toDouble)) <= BigDecimal(threadTarget._2.GoodFactor)&&
-                  Math.abs((array42Fields(8).toDouble - array42Fields(28).toDouble)) <= BigDecimal(threadTarget._2.BadFactor)&&
-                  Math.abs((array42Fields(9).toDouble - array42Fields(29).toDouble)) <= BigDecimal(threadTarget._2.Scope)&&
-                  Math.abs((array42Fields(10).toDouble - array42Fields(30).toDouble)) <= BigDecimal(threadTarget._2.BuildYear)&&
-                  Math.abs((array42Fields(11).toDouble - array42Fields(31).toDouble)) <= BigDecimal(threadTarget._2.Heating)&&
-                  Math.abs((array42Fields(12).toDouble - array42Fields(32).toDouble)) <= BigDecimal(threadTarget._2.IsSchool)&&
-                  Math.abs((array42Fields(13).toDouble - array42Fields(33).toDouble)) <= BigDecimal(threadTarget._2.Style)&&
-                  Math.abs((array42Fields(14).toDouble - array42Fields(34).toDouble)) <= BigDecimal(threadTarget._2.PropertyLevel)&&
-                  Math.abs((array42Fields(15).toDouble - array42Fields(35).toDouble)) <= BigDecimal(threadTarget._2.Environment)&&
-                  Math.abs((array42Fields(16).toDouble - array42Fields(36).toDouble)) <= BigDecimal(threadTarget._2.Density)&&
-                  Math.abs((array42Fields(17).toDouble - array42Fields(37).toDouble)) <= BigDecimal(threadTarget._2.Far)&&
-                  Math.abs((array42Fields(18).toDouble - array42Fields(38).toDouble)) <= BigDecimal(threadTarget._2.DistanceFromCenter)&&
-                  Math.abs((array42Fields(19).toDouble - array42Fields(39).toDouble)) <= BigDecimal(threadTarget._2.DistanceFromTrading)&&
-                  Math.abs((array42Fields(20).toDouble - array42Fields(40).toDouble)) <= BigDecimal(threadTarget._2.DistanceFromLandScape))
+                Math.abs((array42Fields(1).toDouble- array42Fields(22).toDouble)) <= BigDecimal(threadTarget._2.SoilRank)&&
+                  Math.abs((array42Fields(2).toDouble - array42Fields(23).toDouble)) <= BigDecimal(threadTarget._2.BusCount)&&
+                  Math.abs((array42Fields(3).toDouble - array42Fields(24).toDouble)) <= BigDecimal(threadTarget._2.Park)&&
+                  Math.abs((array42Fields(4).toDouble - array42Fields(25).toDouble)) <= BigDecimal(threadTarget._2.Amenities)&&
+                  Math.abs((array42Fields(5).toDouble - array42Fields(26).toDouble)) <= BigDecimal(threadTarget._2.TrafficControl)&&
+                  Math.abs((array42Fields(6).toDouble - array42Fields(27).toDouble)) <= BigDecimal(threadTarget._2.GoodFactor)&&
+                  Math.abs((array42Fields(7).toDouble - array42Fields(28).toDouble)) <= BigDecimal(threadTarget._2.BadFactor)&&
+                  Math.abs((array42Fields(8).toDouble - array42Fields(29).toDouble)) <= BigDecimal(threadTarget._2.Scope)&&
+                  Math.abs((array42Fields(9).toDouble - array42Fields(30).toDouble)) <= BigDecimal(threadTarget._2.BuildYear)&&
+                  Math.abs((array42Fields(10).toDouble - array42Fields(31).toDouble)) <= BigDecimal(threadTarget._2.Heating)&&
+                  Math.abs((array42Fields(11).toDouble - array42Fields(32).toDouble)) <= BigDecimal(threadTarget._2.IsSchool)&&
+                  Math.abs((array42Fields(12).toDouble - array42Fields(33).toDouble)) <= BigDecimal(threadTarget._2.Style)&&
+                  Math.abs((array42Fields(13).toDouble - array42Fields(34).toDouble)) <= BigDecimal(threadTarget._2.PropertyLevel)&&
+                  Math.abs((array42Fields(14).toDouble - array42Fields(35).toDouble)) <= BigDecimal(threadTarget._2.Environment)&&
+                  Math.abs((array42Fields(15).toDouble - array42Fields(36).toDouble)) <= BigDecimal(threadTarget._2.Density)&&
+                  Math.abs((array42Fields(16).toDouble - array42Fields(37).toDouble)) <= BigDecimal(threadTarget._2.Far)&&
+                  Math.abs((array42Fields(17).toDouble - array42Fields(38).toDouble)) <= BigDecimal(threadTarget._2.DistanceFromCenter)&&
+                  Math.abs((array42Fields(18).toDouble - array42Fields(39).toDouble)) <= BigDecimal(threadTarget._2.DistanceFromTrading)&&
+                  Math.abs((array42Fields(19).toDouble - array42Fields(40).toDouble)) <= BigDecimal(threadTarget._2.DistanceFromLandScape))
             }).map(line => {
-              val array42FieldsTwo = line.split(",")
-              (array42FieldsTwo(21),array42FieldsTwo(41).toDouble)
+              val array42FieldsTwo = line.split("\t")
+           //   println("array42FieldsTwo:"+line)
+           //   println("array42FieldsTwo#########:"+array42FieldsTwo(21)+":"+array42FieldsTwo(20))
+              (array42FieldsTwo(21),array42FieldsTwo(20).toDouble)
+
             }).toList
           }.getOrElse(List())
         }
-
+//println("similarCommunityListReal:~~~~~~~~~~~~~~~~:"+similarCommunityListReal.size)
         similarCommunityListReal.isEmpty match{
           case true => secondToBargainList =Nil
           case false =>
             //如果同一个小区，权值为1，否则为传入参数,可动态调整
             similarCommunityListReal.map(scl => {
+              var similar:Double= setting("测试系数").diffrentCommunity
+    //println("similar!kaishi:"+similar+":"+setting("测试系数").maxDistance+":"+setting("测试系数").distancePower)
               similar = similar * Math.pow((setting("测试系数").maxDistance + 1 - scl._2) / setting("测试系数").maxDistance, setting("测试系数").distancePower)
-
+        //  println("similar:"+similar)
+         //     println("scl._1@@@@@@@@@@@@@:"+scl._1+"\t"+scl._2)
               val  bargainList2:Seq[Bargain] =  bargains.get(scl._1).getOrElse(null)
 
               if(bargainList2 != null){
-                secondToBargainList = mapCalculateModel(bargainList2,thresholds,setting,
-                  pcommunityID,pfloor,pTotalFloor,psquare,pfaceTo,pbuildYear,pLocation_Longitude,pLocation_Latitude)
-              }else{
-                secondToBargainList =Nil
+                secondToBargainList= secondToBargainList ++ mapCalculateModel(bargainList2,thresholds,setting,
+                  pcommunityID,pfloor,pTotalFloor,psquare,pfaceTo,pbuildYear,pLocation_Longitude,pLocation_Latitude).map(line=>{
+             //     println("similar*line._1:"+similar*line._1)
+                  (similar*line._1,line._2,line._3)
+                })
               }
+              secondToBargainList
+        //      println("secondToBargainList!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:"+secondToBargainList.size)
 
             })
         }
@@ -243,9 +254,11 @@ object FunctionDriver {
 
       //   println("\n\n************************************************\nThird\n************************************")
       //两个最终结果进行合并
+  //          println("firstResultList:##########:"+firstResultList.size)
+    //      println("secondToBargainList:##########:"+secondToBargainList.size)
       val pfaceToBargainfinalList = firstResultList++secondToBargainList
       //  println("\n\n************************************************\nFour+\n************************************")
-   //   println("\\n\\n***********************************\\npfaceToBargainfinalListPrice+\\n****************:"+pfaceToBargainfinalList.size)
+  //    println("\\n\\n***********************************\\npfaceToBargainfinalListPrice+\\n****************:"+pfaceToBargainfinalList.size)
 
       //留一个口,价格
       var resultprice =Result()
@@ -288,7 +301,7 @@ object FunctionDriver {
           add6month.add(Calendar.MONTH,6)
 
          if(add6month.getTimeInMillis< new Date().getTime){
-         //  println("world cup!!!!!!!!!!!!!!!!!!!!!!!!!")
+      //    println("world cup!!!!!!!!!!!!!!!!!!!!!!!!!")
           val oldvalueList = beijingIndexList.filter(index =>
 
             index.dateTime.getYear == line._2.bargainTime.getYear&&
@@ -317,20 +330,21 @@ object FunctionDriver {
             sumWeigth +=x._1
 
             avmBagainFianlReault.adjustPrice =x._3
-        //     println("adjustPrice: PRICE:"+x._3)
+         //   println("adjustPrice: PRICE:"+x._3)
         //    println("privePrice: PRICE:"+x._2.bargainPrice)
             avmBagainFianlReault.Case = x._2
             avmBagainFianlReault.Weight = x._1
-        //    println("&&&&&&&&&&&&&&&&:"+avmBagainFianlReault.Case.id)
+       //   println("&&&&&&&&&&&&&&&&:"+avmBagainFianlReault.Case.id)
+         //  println("&&&&&&&&&&&&&&&&WEIGHT:"+avmBagainFianlReault.Weight)
             list5FianlBargain = List(avmBagainFianlReault) ++ list5FianlBargain
 
             // rst.Price = Math.Ceiling(cases.Sum(m => m.AdjustPrice * (decimal)m.Weight) / (decimal)sumWeight);
           })
-       //     println("list5FianlBargain: SIZE0:" +list5FianlBargain(0).Case.id)
-       //   println("list5FianlBargain: SIZE1:" +list5FianlBargain(1).Case.id)
+         //   println("list5FianlBargain: SIZE0:" +list5FianlBargain(0).Case.id)
+        //  println("list5FianlBargain: SIZE1:" +list5FianlBargain(1).Case.id)
        //   println("list5FianlBargain: SIZE2:" +list5FianlBargain(2).Case.id)
-       //   println("list5FianlBargain: SIZE3:" +list5FianlBargain(3).Case.id)
-       //   println("list5FianlBargain: SIZE4:" +list5FianlBargain(4).Case.id)
+       //  println("list5FianlBargain: SIZE3:" +list5FianlBargain(3).Case.id)
+      //   println("list5FianlBargain: SIZE4:" +list5FianlBargain(4).Case.id)
           pfaceToBargainfinalList22.map(x =>{
 
             sumadjust_Price +=(x._3.toDouble* x._1 /sumWeigth)
@@ -344,8 +358,8 @@ object FunctionDriver {
           resultprice.price = priceFinal333
           resultprice.list =list5FianlBargain
           resultprice
-        //  println("price:"+resultprice.price)
-         // println("Object resultprice:"+resultprice.list.head.Case.id)
+          println("price:"+resultprice.price)
+         println("Object resultprice:"+resultprice.list.head.Case.id)
           val array5simially = resultprice.list.map{
             line =>
               line.Case.id+"\t"+line.Case.communityID+"\t"+line.Case.square+"\t"+"\t"+line.Case.currentFloor+"\t"+line.Case.totalFloor+"\t"+"\t"+"\t"+line.Case.BuildYear+"\t"+line.Case.bargainTime+"\t"+line.Case.bargainPrice
@@ -471,16 +485,16 @@ object FunctionDriver {
 
     val threadTarget = thresholds.filter(lines => lines._1.equals("测试阈值")).head
     val mineCoummunityBargain = bargainList.filter(line => (new Date().
-      getTime-line.bargainTime.getTime)>= settingBroadcast("测试系数").maxMonth*3600).filter(
+      getTime-line.bargainTime.getTime)>= settingBroadcast("测试系数").maxMonth*30*24*3600).filter(
         (line => (line.totalFloor <= threadTarget._2.CommunityStyle
           ||pTotalFloor>threadTarget._2.CommunityStyle)
           &&(pTotalFloor<=threadTarget._2.CommunityStyle||
           line.totalFloor>threadTarget._2.CommunityStyle))
       )
-  //  println("mineCoummunityBargain$$$$$$$$:"+mineCoummunityBargain.size)
-    //  println("\n\n************************************************\nfloorRule\n************************************")
+   // println("mineCoummunityBargain$$$$$$$$:"+mineCoummunityBargain.size)
+   //   println("\n\n************************************************\nfloorRule\n************************************")
     val flRuleList = settingBroadcast("测试系数").floorRule.toList
-     //println("\n\n************************************************\nfloorRuleAFTER\n************************************")
+   //  println("\n\n************************************************\nfloorRuleAFTER\n************************************")
     val flRulePoint_KeyVal = flRuleList.filter(flr =>
       pfloor >= flr._2.small
         &&pfloor<flr._2.big)
@@ -505,7 +519,7 @@ object FunctionDriver {
       }
 
       weight = weight*flCoefficientList.get(Math.abs(flRulePoint_Key - targetfloorIntKey)).getOrElse(0.0)
-   //   println("楼层分段::::"+cb.id+":"+weight)
+     // println("楼层分段::::"+cb.id+":"+weight)
       (weight,cb)
     }).filter(_._1 != 0.0)
 
@@ -556,7 +570,7 @@ val squareCoffientMap = settingBroadcast("测试系数").squareCoefficient
         val buildCha = Math.abs(PointbuildYear-tagertbuildYear)
         val buildKey = buildYearCofficent.get(buildCha).getOrElse(0.0)
         weight = bgs._1 * buildKey
-       // println("建成年份::::"+bgs._2.id+":"+weight)
+      // println("建成年份::::"+bgs._2.id+":"+weight)
         (weight,bgs._2)
       }else{
         (0.0,bgs._2)
@@ -579,7 +593,7 @@ val squareCoffientMap = settingBroadcast("测试系数").squareCoefficient
       weight =  byg._1*Math.pow((maxMonth +1 -((c.get(Calendar.YEAR)-c2.get(Calendar.YEAR))*12 +
         (c.get(Calendar.MONTH) -c2.get(Calendar.MONTH))))*1.0/maxMonth,
         0.8)
-  //    println("挂牌时间::::"+byg._2.id+":"+weight)
+    //  println("挂牌时间::::"+byg._2.id+":"+weight)
      // println("timePowerBargain:"+timePowerBargain)
       (weight,byg._2)
     }).filter(_._1 !=0.0 )
@@ -605,26 +619,26 @@ val squareCoffientMap = settingBroadcast("测试系数").squareCoefficient
 //println("777777777777777777")
         val square_adjust_weight = square_adjust_List.map(line => line match{
           case (x:Double,y:Double) =>
-  //          println("doubl66666666666666666e")
+     //      println("doubl66666666666666666e")
             y
           case _ => 0.0
         }).head
         weight = tb._1*square_adjust_weight
       }else{
         weight = tb._1 *0.0
+
       //  println("为空。。。。。。。。。")
       }
-    //  println("面积开始过滤::::"+tb._2.id+":"+weight)
+   //   println("面积开始过滤::::"+tb._2.id+":"+weight)
       (weight,tb._2)
     }).filter(_._1 != 0.0)
 //println("square_adjust_coefficientBargain333333333333"+square_adjust_coefficientBargain.size)
 
     //朝向过滤开始,现在其实没有做，留个口
-
     val pfaceToBargain =  square_adjust_coefficientBargain.map(line => {
       weight = line._1*1
       //(权重，bargain，bargainPrice)
-  //     println("line._2.bargainPrice%%%%%%%%%%%%%%%  :"+line._2.bargainPrice+"\t"+weight)
+   //   println("line._2.bargainPrice%%%%%%%%%%%%%%%  :"+line._2.bargainPrice+"\t"+weight)
       (weight,line._2,line._2.bargainPrice)
 
     }).filter(_._1 > 0.0)
