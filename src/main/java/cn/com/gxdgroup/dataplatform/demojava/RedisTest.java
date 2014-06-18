@@ -14,7 +14,7 @@ import java.awt.*;
 public class RedisTest {
     public static void main(String[] args) {
         long start = System.currentTimeMillis();
-        JedisPoolConfig config = config = new JedisPoolConfig();
+        JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxActive(60);
         config.setMaxIdle(1000);
         config.setMaxWait(10000);
@@ -22,19 +22,19 @@ public class RedisTest {
         JedisPool pool = new JedisPool(config, "cloud41", 6379, 1000);
 
         Jedis j = pool.getResource();
-
-        //Pipeline pipe = j.pipelined();
-
         System.out.println("connect time1:"+(System.currentTimeMillis()-start));
+
+        Pipeline pipe = j.pipelined();
+
 
         long start1 = System.currentTimeMillis();
 
         for(int i=0;i<100000;i++){
-            //pipe.hset("test33",Integer.toString(i),Integer.toString(i));
-            j.hset("test33",Integer.toString(i),Integer.toString(i));
+            pipe.hset("test33",Integer.toString(i),Integer.toString(i));
+            //j.hset("test33",Integer.toString(i),Integer.toString(i));
         }
 
-        //pipe.sync();
+        pipe.sync();
         System.out.println("java time is:"+(System.currentTimeMillis()-start1)+" ms");
         pool.returnResource(j);
         pool.destroy();
