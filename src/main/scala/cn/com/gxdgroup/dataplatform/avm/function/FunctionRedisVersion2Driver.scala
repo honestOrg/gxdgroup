@@ -37,7 +37,7 @@ import redis.clients.jedis.{Jedis, Tuple}
  */
 object FunctionRedisVersion2Driver {
 
-  JedisUtils.initPool
+JedisUtils.initPool
   val j: Jedis = JedisUtils.getJedis
   val collectMapinitializesSC= j.hgetAll("AVMINIT")
   val collectMapCommunity = j.hgetAll("COMMUNITYINIT")
@@ -52,8 +52,8 @@ object FunctionRedisVersion2Driver {
     val GetAllThreshold = sc.textFile(args(1))
     val GetAllCommunity = sc.textFile(args(2))
     val GetAllBargainTextFile = sc.textFile(args(3))
-    val initializesimlarCommunitys = sc.textFile(args(4))
-    val AlotOFBargainList=sc.textFile(args(5),args(6).toInt)
+   // val initializesimlarCommunitys = sc.textFile(args(4))
+    val AlotOFBargainList=sc.textFile(args(4),args(5).toInt)
     // val GetAllCommunityToArray = GetAllCommunity.toArray()
     /*
         val collectMapCommunity = GetAllCommunity.map(line =>{
@@ -244,7 +244,10 @@ object FunctionRedisVersion2Driver {
               var psimilarVal =  collectMapinitializesSC.get(pcommunityID)
               if(psimilarVal!=null) {
                 psimilarVal.split(",").filter{x=>
+
                   val distanceAndCommID= x.split("\t")
+                  println("distanceAndCommID:"+x)
+                println("%%%%%%%%%%%%:"+collectMapCommunity.get(distanceAndCommID(1)))
                   val communityDetail = collectMapCommunity.get(distanceAndCommID(1)).split("\t")
                   (
                     Math.abs((array42Fields(1).toDouble- communityDetail(1).toDouble)) <= BigDecimal(threadTarget._2.SoilRank)&&
@@ -477,6 +480,7 @@ object FunctionRedisVersion2Driver {
         }
 
     }.cache()
+
     val lg2 = lg.map{
 
       x => x._1
@@ -517,6 +521,7 @@ object FunctionRedisVersion2Driver {
                              pLongitude:Double,
                              pLatitude:Double) :List[(String,Double)]={
     var SimilarCommunity:List[(String,Double)] = Nil
+
     val it = collectMapCommunity.values().iterator()
     while(it.hasNext){
       val arraysFields = it.next().split("\t")
