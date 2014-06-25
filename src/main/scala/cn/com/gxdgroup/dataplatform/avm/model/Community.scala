@@ -94,9 +94,43 @@ case class Bargain (
 
 }
 
+case class Bargain2 (
+                     val   id:String,
+                     val   cityName:String,
+                     val   CountyName:String,
+                     val   communityID:String,
+                     val communityName:String,
+                     val   square:Double,
+                     val   FaceTo:String,
+                     val   currentFloor:Int,
+                     val   totalFloor:Int,
+                     val   LocationLongitude:Double,
+                     val   LocationLatitude:Double,
+                     val   BuildYear:String,
+                     //  注意是时间类型的
+                     val  bargainTime:Date,
+                     val   bargainPrice:BigDecimal,
+                     val   relationID:String
+                     ){
+
+  override def toString() = id+"\t"+communityID+"\t"+square+"\t"+"\t"+currentFloor+"\t"+totalFloor+"\t"+"\t"+"\t"+BuildYear+"\t"+bargainTime+"\t"+bargainPrice
+
+
+}
+
+
+
+
 case class AVMBargain(){
   var Weight: Double = 1
   var   Case:Bargain = null
+  var   adjustPrice:BigDecimal=null
+
+}
+
+case class AVMBargain2(){
+  var Weight: Double = 1
+  var   Case:Bargain2 = null
   var   adjustPrice:BigDecimal=null
 
 }
@@ -142,5 +176,11 @@ case class Index2(
 case class Result(){
   var price:BigDecimal =0
   var list:List[AVMBargain] =null
+
+}
+
+case class Result2(){
+  var price:BigDecimal =0
+  var list:List[AVMBargain2] =null
 
 }
