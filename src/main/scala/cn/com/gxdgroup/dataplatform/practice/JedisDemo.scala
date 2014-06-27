@@ -60,7 +60,7 @@ object JedisDemo {
       block(redis)
     } catch{
       case e : Exception => System.err.println(e)  //should use log in production
-      case _ => //never should happen
+//      case _ => //never should happen
     }finally {
       this.close(pool, redis)
     }
