@@ -72,7 +72,25 @@ object FunctionRedisDriver {
     val j: Jedis = JedisUtils.getJedis
     val collectMapinitializesSC= j.hgetAll("AVMINIT")
     val collectMapCommunity = j.hgetAll("COMMUNITYINIT")
+  //  val allBargains= j.hgetAll("BARGAINSINIT")
 
+//    var bargains = Map[String,Bargain]()
+//
+//
+//    val bargainIT = allBargains.values().iterator()
+//    while(bargainIT.hasNext){
+//      val bargainDetailArray = bargainIT.next().split("\t")
+//      val bargain = new Bargain(bargainDetailArray(0),
+//        bargainDetailArray(1),
+//        bargainDetailArray(2).toDouble,
+//        bargainDetailArray(3).toInt,
+//        bargainDetailArray(4).toInt,
+//        bargainDetailArray(5),
+//        AVMUtils.StringToDate2(bargainDetailArray(6)),
+//        bargainDetailArray(7).toDouble
+//      )
+//      bargains += ( bargainDetailArray(1) ->bargain )
+//    }
 
     val indexes= GetAllIndex.map(line => {
       //先假设是逗号分隔

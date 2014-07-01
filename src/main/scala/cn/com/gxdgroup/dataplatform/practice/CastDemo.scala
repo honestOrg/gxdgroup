@@ -198,8 +198,8 @@ object CastDemo {
           }
         }
 
-        case Person("Bob",32) => println("Hi Bob")
-        case Person(name,age) => println(s"Age: $age year, name: $name !")
+//        case Person("Bob",32) => println("Hi Bob")
+//        case Person(name,age) => println(s"Age: $age year, name: $name !")
 
       }
     }
