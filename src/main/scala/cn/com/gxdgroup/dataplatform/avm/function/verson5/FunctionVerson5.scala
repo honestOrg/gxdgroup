@@ -67,7 +67,7 @@ object FunctionVerson5 {
 
    val filterBargainList = AlotOFBargainList.filter{line =>
     val cityName = line.split("\t")(1)
-     AVMINITRedis2.containsKey(cityName)&&(!line.contains("正无穷大"))
+     AVMINITRedis2.containsKey(cityName)
     }
 
     // println("count:#########:"+byCountyBargains.count())
@@ -116,6 +116,7 @@ object FunctionVerson5 {
  //   val inint = sc.accumulable(0)
 
     val lgfinal = filterBargainList.map {line =>
+      println("okokokokokokokokokoko")
         val lineArray = line.split("\t")
         var collectMapinitializesSC = AVMINITRedis2.get(lineArray(1))
         var collectMapCommunity = CommunityRedis2.get(lineArray(1))
@@ -123,7 +124,7 @@ object FunctionVerson5 {
 
         var indexListByRedis = IndexRedis2.get(lineArray(1))
 
-        val bargainForImpal = lineArray(0) + "\t" +
+        val bargainForImpal =
         lineArray(1) + "\t" +
         lineArray(2) + "\t" +
         lineArray(4) + "\t" +
@@ -168,9 +169,12 @@ object FunctionVerson5 {
           //println("德国：" + bargainsArray.size)
           bargainsArray.map {
             line =>
-            //println("line:@@@@@@@@@@@:"+line)
+            println("line:@@@@@@@@@@@:"+line)
+
               val bargainDetailArray = line.split("\t")
+            println("line:@@@@@@@@@@@:"+bargainDetailArray.length)
               val bargain = new Bargain2(
+
                 bargainDetailArray(0),
                 bargainDetailArray(1),
                 bargainDetailArray(2),
@@ -189,6 +193,7 @@ object FunctionVerson5 {
               )
               bargainList = bargain :: bargainList
           }
+
 
           //println("克罗地亚：" + bargainList.size)
         }
@@ -269,7 +274,7 @@ object FunctionVerson5 {
             case true => secondToBargainList = Nil
             case false =>
               //如果同一个小区，权值为1，否则为传入参数,可动态调整
-              similarCommunityListReal.take(3).map(scl => {
+              similarCommunityListReal.map(scl => {
                 var similar: Double = setting("测试系数").diffrentCommunity
                 //println("similar!kaishi:"+similar+":"+setting("测试系数").maxDistance+":"+setting("测试系数").distancePower)
                 similar = similar * Math.pow((setting("测试系数").maxDistance + 1 - scl._2) / setting("测试系数").maxDistance, setting("测试系数").distancePower)
@@ -441,7 +446,7 @@ object FunctionVerson5 {
 
             }.toArray
             //由价格和本身自己批量查询的Bargain详细信息
-            val finalResultString = resultprice.price + "\t" + bargainForImpal
+            val finalResultString = lineArray(0) +"\t"+resultprice.price + "\t" + bargainForImpal
             val sim1 = bargainID + "\t" + array5simially(0)
             val sim2 = bargainID + "\t" + array5simially(1)
             val sim3 = bargainID + "\t" + array5simially(2)
@@ -454,7 +459,7 @@ object FunctionVerson5 {
             //  sc.parallelize(finalListResultAnd5Simily).saveAsTextFile("lg/gxd/finalResult")
           } else {
 
-            val defaultResultVal = resultprice.price + "\t" + bargainForImpal
+            val defaultResultVal = lineArray(0) +"\t"+resultprice.price + "\t" + bargainForImpal
 
             (defaultResultVal, "", "", "", "", "")
 
@@ -475,7 +480,7 @@ object FunctionVerson5 {
           //sc.parallelize(finalListResultAnd5Simily222).saveAsTextFile("lg/gxd/finalResult2")
 
 
-          val defaultResultVal2 = resultprice.price + "\t" + bargainForImpal
+          val defaultResultVal2 = lineArray(0) +"\t"+resultprice.price + "\t" + bargainForImpal
           listBargainFirst = defaultResultVal2 :: listBargainFirst
           (defaultResultVal2, "", "", "", "", "")
         }
