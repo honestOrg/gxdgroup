@@ -2,12 +2,9 @@ package cn.com.gxdgroup.dataplatform.practice
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
-import cern.jet.random.StudentT
-import scala.beans.BeanProperty
-import org.objenesis.strategy.StdInstantiatorStrategy
-import com.twitter.chill.EnumerationSerializer
 import com.esotericsoftware.kryo.serializers.MapSerializer
-import com.romix.scala.serialization.kryo._
+import com.twitter.chill.EnumerationSerializer
+import org.objenesis.strategy.StdInstantiatorStrategy
 
 /**
  * Created by wq on 14-6-13.

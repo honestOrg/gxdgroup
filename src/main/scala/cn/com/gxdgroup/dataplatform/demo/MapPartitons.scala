@@ -1,6 +1,7 @@
 package cn.com.gxdgroup.dataplatform.demo
 
 import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.SparkContext._
 
 /**
  * Created by wq on 14-5-26.
@@ -8,11 +9,11 @@ import org.apache.spark.{SparkContext, SparkConf}
 object MapPartitons {
 
   def main(args: Array[String]) {
-    val conf = new SparkConf()
-    conf.setMaster("spark://honest:7077")
-      .setSparkHome("/Users/wq/env/spark-0.9.0-incubating-bin-cdh4")
-      .setAppName("secondarySort")
-      .set("spark.executor.memory", "2g")
+//    val conf = new SparkConf()
+//    conf.setMaster("spark://honest:7077")
+//      .setSparkHome("/Users/wq/env/spark-0.9.0-incubating-bin-cdh4")
+//      .setAppName("secondarySort")
+//      .set("spark.executor.memory", "2g")
     //.setJars(jars)
 
     //val sc = new SparkContext(conf)
@@ -106,11 +107,15 @@ object MapPartitons {
 
     val ss1 = sc.parallelize(ss)
 
+    ss1.map(_._2).saveAsTextFile("hdfs://cloud40:8020/user/gxd/wq/test")
+
 
 
     val ss2 = ss1.groupBy(x=>x._1)
 
     println(ss2.collect().mkString("|"))
+
+
 
   }
 

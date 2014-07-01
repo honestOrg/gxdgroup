@@ -29,6 +29,7 @@ object WqSparkDemo {
     val file = spark.newAPIHadoopFile[LongWritable, Text, TextInputFormat](args(0))
     file.saveAsNewAPIHadoopFile[FileOutputFormat[LongWritable,Text]](args(1))
     file.saveAsHadoopFile[MultipleTextOutputFormatByKey[LongWritable,Text]](args(1))
+
     //MulipleTextOutputFormat
     file.saveAsHadoopFile(args(1), classOf[String], classOf[String], classOf[KeyBasedOutput[String, String]])
 
@@ -46,8 +47,8 @@ object WqSparkDemo {
 
     val sc = new SparkContext(conf)
 
-    val ssc = new StreamingContext(args(0), "NetworkWordCount", Seconds(args(3).toInt),
-      System.getenv("SPARK_HOME"), StreamingContext.jarOfClass(this.getClass))
+//    val ssc = new StreamingContext(args(0), "NetworkWordCount", Seconds(args(3).toInt),
+//      System.getenv("SPARK_HOME"), StreamingContext.jarOfClass(this.getClass))
 
 
     val counter = sc.accumulator(0)
