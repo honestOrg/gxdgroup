@@ -1,19 +1,21 @@
 package cn.com.gxdgroup.dataplatform.practice
 
-import redis.clients.jedis.Jedis
-import scala.collection.mutable.Map
-import scala.collection.JavaConversions.mapAsScalaMap
 import java.util.HashMap
+
+import redis.clients.jedis.Jedis
+
+import scala.collection.JavaConversions.mapAsScalaMap
+import scala.collection.mutable.Map
 
 /**
  * Created by bao on 14-6-26.
  */
 object BaoTest2 {
   def main(args: Array[String]) {
-//    mapTest
-//    redisTest
+    //    mapTest
+    //    redisTest
     redisTest2
-//    redisTest3
+    //    redisTest3
   }
 
   def redisTest3 {
@@ -26,7 +28,7 @@ object BaoTest2 {
     val c = j.hgetAll("上海市AVMINIT")
     val d = j.lrange("上海", 0, -1)
     val l3 = System.currentTimeMillis()
-    println("get cost:" + (l3 - l2) )
+    println("get cost:" + (l3 - l2))
     println("total cost:" + (l3 - l))
   }
 
@@ -38,10 +40,12 @@ object BaoTest2 {
     r.hgetall("test")
     val map = r.hgetall("test") match {
       case Some(map) if !map.isEmpty => map
-      case Some(map) if map.isEmpty => {r.hgetall("baotest") match {
-        case Some(map) => map
-        case None => Map.empty
-      }}
+      case Some(map) if map.isEmpty => {
+        r.hgetall("baotest") match {
+          case Some(map) => map
+          case None => Map.empty
+        }
+      }
     }
 
     println(map.mkString(","))
