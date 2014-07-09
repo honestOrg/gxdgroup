@@ -65,6 +65,7 @@ object SecondarySort {
     //---------------------------------------------
     val wqlist = List(("11","11"),("22","22"))
     val kankan2 =  sc.parallelize(wqlist).cache()
+    kankan2.groupByKey()
     val kk2 = kankan2.filter(x => x._1=="11").take(1).head._2
     println("kk2:"+kk2)
     println("kk2 of list:"+kk2.toList)
