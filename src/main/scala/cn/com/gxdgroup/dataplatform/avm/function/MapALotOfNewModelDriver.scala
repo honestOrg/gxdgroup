@@ -32,6 +32,7 @@ import scala.concurrent.{Await, Future}
 import scala.BigDecimal
 import cn.com.gxdgroup.dataplatform.avm.utils.AVMUtils
 import scala.collection.mutable.ArrayBuffer
+import redis.clients.jedis.Tuple
 
 /**
  * Created by ThinkPad on 14-6-3.
@@ -42,6 +43,7 @@ object MapALotOfNewModelDriver {
 
     val sc = new SparkContext("spark://cloud40:7077", "gxd",
       System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
+
 
     val GetAllIndex = sc.textFile(args(0))
     val GetAllThreshold = sc.textFile(args(1))
@@ -57,7 +59,7 @@ object MapALotOfNewModelDriver {
     }).collectAsMap()
 
     val collectMapinitializesSC =  initializesimlarCommunitys.map(line => {
-      var lines = line.split("\t")
+      var lines = line.split(",")
       (lines(0),line)
     }).groupByKey().collectAsMap()
 
@@ -150,11 +152,14 @@ object MapALotOfNewModelDriver {
     }).take(100000)
       */
 
-    AlotOFBargainList.foreachPartition(iter =>
 
+    //AlotOFBargainList.foreachPartition(iter =>
+   /**
+    AlotOFBargainList.mapPartitions(iter =>
     {
 
-      iter.foreach(line =>{
+      //iter.foreach(line =>{
+      iter.map(line =>{
         //println("AlotOFBargainList.mapPartitions:"+line)
         val bargainArrays =  line.split("\t")
         process(bargainArrays(1),
@@ -165,16 +170,47 @@ object MapALotOfNewModelDriver {
           bargainArrays(8))
       })
     }
+
     )
+*/
 
 
+   var listBargainFirst:List[String]=Nil
+   AlotOFBargainList.map{line =>
+        process(line)
+        //(1,1)
 
 
-    def process(pcommunityID:String, pfloor:Int, pTotalFloor:Int,psquare:Double,pfaceTo:String,pbuildYear:String,
-                pLocation_Longitude:Double=0,pLocation_Latitude:Double=0)={
+    }.map{line =>
+
+     println("line##############:"+line._1)
+     println("@@@@@@@@@@@@@@@@@@"+listBargainFirst.size)
+     listBargainFirst = line._1::listBargainFirst
+     listBargainFirst = line._2::listBargainFirst
+     listBargainFirst = line._3::listBargainFirst
+     listBargainFirst = line._4::listBargainFirst
+     listBargainFirst = line._5::listBargainFirst
+     listBargainFirst = line._6::listBargainFirst
+
+   }.take(1000000)
+
+  println("listBargainFirst%%%%%%%%%%%%%%%%%%%%%:"+listBargainFirst.size)
+
+    sc.parallelize(listBargainFirst).saveAsTextFile("lg/gxd/liu")
+
+    def process(bargainDetial:String,
+                pLocation_Longitude:Double=0,pLocation_Latitude:Double=0):(String,String,String,String,String,String) = {
+      val bargainDetialArrays = bargainDetial.split("\t")
+      val bargainID = bargainDetialArrays(0)
+      val pcommunityID = bargainDetialArrays(1)
+
+      val pfloor = bargainDetialArrays(4).toInt
+      val pTotalFloor= bargainDetialArrays(5).toInt
+      val psquare =  bargainDetialArrays(5).toInt
+      val pfaceTo =bargainDetialArrays(3)
+      val pbuildYear = bargainDetialArrays(8)
 
       val  targetCommunityList =collectMapCommunity.get(pcommunityID).getOrElse(null)
-
 
       val  targetSimilarCommunityList:Seq[String] = collectMapinitializesSC.get(pcommunityID).getOrElse(null)
 
@@ -290,6 +326,7 @@ object MapALotOfNewModelDriver {
         //  case false =>pfaceToBargainfinalList.map(line =>{
         val pfaceToBargainfinalList23 =  pfaceToBargainfinalList.map(line =>{
           val oldvalueList = beijingIndexList.filter(index =>
+
             index.dateTime.getYear == line._2.bargainTime.getYear&&
               index.dateTime.getMonth ==line._2.bargainTime.getMonth
           ).take(1).toList
@@ -321,6 +358,7 @@ object MapALotOfNewModelDriver {
             avmBagainFianlReault.Case = x._2
             avmBagainFianlReault.Weight = x._1
             list5FianlBargain = List(avmBagainFianlReault) ++ list5FianlBargain
+
             // rst.Price = Math.Ceiling(cases.Sum(m => m.AdjustPrice * (decimal)m.Weight) / (decimal)sumWeight);
           })
         //  println("list5FianlBargain: SIZE:" +list5FianlBargain.size)
@@ -333,26 +371,77 @@ object MapALotOfNewModelDriver {
           //下面是最终的价钱
           val priceFinal333 =  Math.ceil(sumadjust_Price11)
 
-
           resultprice.price = priceFinal333
           resultprice.list =list5FianlBargain
           resultprice
           println("price:"+resultprice.price)
          println("Object resultprice:"+resultprice.list.head.Case.id)
+          val array5simially = resultprice.list.map{
+            line =>
+              line.Case.id+"\t"+line.Case.communityID+"\t"+line.Case.square+"\t"+"\t"+line.Case.currentFloor+"\t"+line.Case.totalFloor+"\t"+"\t"+"\t"+line.Case.BuildYear+"\t"+line.Case.bargainTime+"\t"+line.Case.bargainPrice
+          }.toArray
+          //由价格和本身自己批量查询的Bargain详细信息
+         val finalResultString= resultprice.price+"\t"+bargainDetial
+          val sim1 = bargainID+"\t" +array5simially(0)
+          val sim2 = bargainID+"\t" +array5simially(1)
+          val sim3 = bargainID+"\t" +array5simially(2)
+          val sim4 = bargainID+"\t" +array5simially(3)
+          val sim5 = bargainID+"\t" +array5simially(4)
+
+          (finalResultString,sim1,sim2,sim3,sim4,sim5)
+
+         // println("finalResultString*111111111111111111***************:"+finalResultString.size)
+         //  sc.parallelize(finalListResultAnd5Simily).saveAsTextFile("lg/gxd/finalResult")
+        }else{
+
+          val defaultResultVal = resultprice.price+"\t"+bargainDetial
+
+          (defaultResultVal,"","","","","")
+
         }
 
       }else{
-        resultprice
-        println("price222:"+resultprice.price)
-        println("Object resultprice222:"+resultprice)
-      }
 
+
+       // println("price222:"+resultprice.price)
+      //  println("Object resultprice222:"+resultprice)
+      //  val finalResultDefault = pcommunityID+","+resultprice.price+","+
+
+      //  println("finalResultString2$$$$$$$$$$$$$:"+finalResultString2)
+
+
+    //    println("listparallize2222222222222222222:"+listparallize222.size)
+
+        //sc.parallelize(finalListResultAnd5Simily222).saveAsTextFile("lg/gxd/finalResult2")
+
+
+        val defaultResultVal2 = resultprice.price+"\t"+bargainDetial
+        listBargainFirst = defaultResultVal2::listBargainFirst
+        (defaultResultVal2,"","","","","")
+      }
 
 
 
 
     }
   }
+
+
+
+
+
+
+
+
+  def mkdirdou(num:Int):String={
+    var dou =""
+    for(i <- 0 to num){
+      dou = dou+"\t"
+    }
+    dou
+  }
+
+
 
   def  GetSimilarCommunity2(GetAllCommunity:Array[String],
                             setting:Map[String,Setting],
@@ -370,6 +459,11 @@ object MapALotOfNewModelDriver {
     }).filter(_._2 < setting("测试系数").maxDistance)
 
   }
+
+
+
+
+
   def mapCalculateModel(bargainList:Seq[Bargain],thresholds:Array[(String,Threshold)],settingBroadcast:Map[String,Setting],pcommunityName:String, pfloor:Int, pTotalFloor:Int,psquare:Double,pfaceTo:String,pbuildYear:String,
                         pLocation_Longitude:Double=0,pLocation_Latitude:Double=0):List[(Double,Bargain,BigDecimal)]={
 
@@ -381,9 +475,9 @@ object MapALotOfNewModelDriver {
           &&(pTotalFloor<=threadTarget._2.CommunityStyle||
           line.totalFloor>threadTarget._2.CommunityStyle))
       )
-    println("\n\n************************************************\nfloorRule\n************************************")
+  //  println("\n\n************************************************\nfloorRule\n************************************")
     val flRuleList = settingBroadcast("测试系数").floorRule.toList
-    println("\n\n************************************************\nfloorRuleAFTER\n************************************")
+   // println("\n\n************************************************\nfloorRuleAFTER\n************************************")
     val flRulePoint_KeyVal = flRuleList.filter(flr =>
       pfloor >= flr._2.small
         &&pfloor<flr._2.big)

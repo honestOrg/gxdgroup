@@ -41,7 +41,7 @@ object JedisUtils {
   var pool : JedisPool = null
 
   def initPool = {
-    pool = new JedisPool(config, "cloud41", 6379,10*1000)
+   pool = new JedisPool(config, "cloud41", 6379,10*1000)
   }
 
   def getJedis: Jedis = {
@@ -54,7 +54,7 @@ object JedisUtils {
   }
 
   def withConnection[A](block: Jedis => Unit) = {
-    implicit var redis = new JedisPool(config, "cloud41", 6379).getResource
+   implicit var redis = new JedisPool(config, "cloud41", 6379).getResource
     try {
       block(redis)
     } catch{

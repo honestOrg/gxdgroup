@@ -1,7 +1,7 @@
 package cn.com.gxdgroup.dataplatform.avm.function.verson4
 import cn.com.gxdgroup.dataplatform.avm.model._
 import org.apache.spark.deploy.SparkHadoopUtil
-import org.apache.spark.SparkContext
+import org.apache.spark.{Partitioner, SparkContext}
 import org.apache.spark.scheduler.InputFormatInfo
 import org.apache.hadoop.mapred.TextInputFormat
 import java.util.{Calendar, Date}
@@ -45,19 +45,24 @@ object UpdateFunctionVerson_One {
 
     // val GetAllIndex = sc.textFile(args(0))
 
+
     val AlotOFBargainList=sc.textFile(args(0),args(1).toInt)
 
+    val partitioner = new IdentityIntPartitioner(10)
+
+  //  kankan2.groupByKey(partitioner)
+  val num = new java.util.Random()
     val byCountyBargains = AlotOFBargainList.map{line=>
       val bargainDetal = line.split("\t")
       //其中bargainDetal(1)是城市名,values这个城市下的所有案例
       (bargainDetal(1),line)
-    }.groupByKey(40).filter{line =>
 
+    }.groupBy(x => x._1+"\t"+ num.nextInt(50)).filter{line =>
       JedisUtils.initPool
       val j: Jedis = JedisUtils.getJedis
-      j.exists(line._1.replace("市",""))&& j.exists(line._1+"案例表")
+      j.exists(line._1.split("\t")(0).replace("市",""))&& j.exists(line._1.split("\t")(0)+"案例表")
     }
-    println("count:#########:"+byCountyBargains.count())
+   // println("count:#########:"+byCountyBargains.count())
     JedisUtils.initPool
     val j: Jedis = JedisUtils.getJedis
     val threadholdDetal = j.hget("THREADHOLD", "测试阈值")
@@ -99,7 +104,8 @@ object UpdateFunctionVerson_One {
     //怡美家园34FB10C8-28FB-4458-935A-4AC28C4BE8B7	CDE1A25B-1359-4E59-AC85-6A71C534859D	84.99	东南	12	18	116.3284912	40.04579544	2001	2013/12/28	42358
     //批量计算开始*********************&&&&&&&&&*******
     val lgfinal = byCountyBargains.flatMap{line=>
-      val cityName = line._1
+
+      val cityName = line._1.split("\t")(0)
       val cityNameNot = cityName.replace("市","")
       JedisUtils.initPool
       val j: Jedis = JedisUtils.getJedis
@@ -107,14 +113,14 @@ object UpdateFunctionVerson_One {
       val collectMapCommunity = j.hgetAll(cityName+"小区表")
       val allBargains = j.hgetAll(cityName+"案例表")
       val indexListByRedis = j.lrange(cityNameNot, 0, -1)
-      println("collectMapinitializesSC@@@@@@@@@@@@@@:"+collectMapinitializesSC.size())
-      println("collectMapCommunity!!!!!!!!!!!!:"+collectMapCommunity.size())
-      println("allBargains%%%%%%%%%%%%%%:"+allBargains.size())
-      println("indexListByRedis:##########:"+indexListByRedis.size())
-      println("okokokokokoooooooooooooooooooooooooooooooo")
+      //println("collectMapinitializesSC@@@@@@@@@@@@@@:"+collectMapinitializesSC.size())
+    //  println("collectMapCommunity!!!!!!!!!!!!:"+collectMapCommunity.size())
+     // println("allBargains%%%%%%%%%%%%%%:"+allBargains.size())
+     // println("indexListByRedis:##########:"+indexListByRedis.size())
+     // println("okokokokokoooooooooooooooooooooooooooooooo")
       line._2.map{line=>
 
-        val bargainDetial = line
+        val bargainDetial = line._2
 
 
         val bargainDetialArrays = bargainDetial.split("\t")
@@ -153,7 +159,7 @@ object UpdateFunctionVerson_One {
         var secondToBargainList :List[((Double,Bargain2,BigDecimal))] =Nil
 
         //val threadTarget = thresholds.filter(lines => lines._1.equals("测试阈值")).head
-        println("\n\n************************************************\nFirst\n************************************")
+     //   println("\n\n************************************************\nFirst\n************************************")
         //  println("\n\n************************************************\ntargetCommunityList\n************************************:"+targetCommunityList.size)
         val  bargainVal = allBargains.get(pcommunityID)
         var bargainList:List[Bargain2] = Nil
@@ -161,7 +167,7 @@ object UpdateFunctionVerson_One {
 
           val bargainsArray = bargainVal.split(",")
 
-          println("德国："+bargainsArray.size)
+     //     println("德国："+bargainsArray.size)
           bargainsArray.map{
             line =>
             //println("line:@@@@@@@@@@@:"+line)
@@ -186,20 +192,20 @@ object UpdateFunctionVerson_One {
               bargainList = bargain::bargainList
           }
 
-          println("克罗地亚："+bargainList.size)
+       //   println("克罗地亚："+bargainList.size)
         }
         //   val  bargainList:Seq[Bargain] = bargains.get(pcommunityID).getOrElse(null)
         if(targetCommunityList != null && bargainList != null){
 
           firstResultList = mapCalculateModel(bargainList,threadTarget,setting,
             pcommunityID,pfloor,pTotalFloor,psquare,pfaceTo,pbuildYear,pLocation_Longitude,pLocation_Latitude)
-          println("firstResultList:$$$$$$$$$$$:"+firstResultList.size)
+      //    println("firstResultList:$$$$$$$$$$$:"+firstResultList.size)
         }
 
         //println("\n\n************************************************\nSecond\n************************************"       + firstResultList.size)
         if(firstResultList.size < 5){
 
-          println("\n\n************************************************\nFive FIVE\n************************************")
+      //    println("\n\n************************************************\nFive FIVE\n************************************")
           val similarCommunityListReal:List[(String,Double)] = targetCommunityList==null match {
             case true => //GetSimilarCommunity3(setting,pLocation_Longitude,pLocation_Latitude)
               var SimilarCommunity:List[(String,Double)] = Nil
@@ -700,6 +706,24 @@ object UpdateFunctionVerson_One {
 
     // println("pfaceToBargain4444444444444:"+pfaceToBargain.size)
     pfaceToBargain.toList
+
+  }
+
+}
+
+
+class IdentityIntPartitioner(num: Int) extends Partitioner {
+
+  def numPartitions = num
+
+
+
+
+  def getPartition(key: Any): Int = key match {
+
+    case null => 0
+
+    case _ => new java.util.Random().nextInt(numPartitions)+1
 
   }
 

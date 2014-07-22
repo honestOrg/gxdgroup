@@ -110,9 +110,9 @@ object Map2222ALotOfNewModelDriver {
 
 
     //SETTING初始化
-    val buildYear_coefficient =Map[Double,Double]("0".toDouble -> 1,"1".toDouble -> 0.95,"2".toDouble ->0.9,"3".toDouble ->0.84,"4".toDouble ->0.8,"5".toDouble ->0.75,"6".toDouble->0.7,"7".toDouble->0.65,"8".toDouble->0.6,"9".toDouble-> 0.55,"10".toDouble-> 0.5,"11".toDouble-> 0.45,"12".toDouble-> 0.4,"13".toDouble-> 0.35,"14".toDouble-> 0.3,"15".toDouble-> 0.25,"16".toDouble-> 0.2,"17".toDouble-> 0.15,"18".toDouble-> 0.1)
+    val buildYear_coefficient =Map[Double,Double]("0".toDouble -> 1,"1".toDouble -> 0.95,"2".toDouble ->0.9,"3".toDouble ->0.85,"4".toDouble ->0.8,"5".toDouble ->0.75,"6".toDouble->0.7,"7".toDouble->0.65,"8".toDouble->0.6,"9".toDouble-> 0.55,"10".toDouble-> 0.5,"11".toDouble-> 0.45,"12".toDouble-> 0.4,"13".toDouble-> 0.35,"14".toDouble-> 0.3,"15".toDouble-> 0.25,"16".toDouble-> 0.2,"17".toDouble-> 0.15,"18".toDouble-> 0.1)
     val floor_coefficient = Map[Int,Double](0 ->1,1 ->0.85,2 ->0.6)
-    val floor_rule=Map[Int,Section](0 ->Section(-10,10),1 ->Section(10,20),2 -> Section(20,100))
+    val floor_rule=Map[Int,Section](0 ->Section(0,10),1 ->Section(10,20),2 -> Section(20,100))
     val square_coefficient=Map[Int,Double](0->1,1 ->0.85,2->0.6,3 ->0.3,4->0)
     val square_rule=Map[Int, Section](0->Section ( 0, 40),1-> Section ( 40, 60 ),2-> Section (60, 90),3-> Section (90,140),4-> Section (140,999999))
     val square_adjust_coefficient=Map[Double,Double]("0".toDouble ->"1".toDouble,0.05-> 0.9,0.1-> 0.81,0.15-> 0.72,0.2-> 0.64,0.25-> 0.56,0.3-> 0.49,0.4-> 0.36,0.45-> 0.3,0.5-> 0.25,0.6-> 0.16,0.65-> 0.12,0.7-> 0.09,0.75-> 0.06,0.8-> 0.04,0.85-> 0.02,0.9-> 0.01,0.95-> "0".toDouble,"1".toDouble-> "0".toDouble,"100000".toDouble-> "0".toDouble)
@@ -176,6 +176,8 @@ object Map2222ALotOfNewModelDriver {
 
 
     var listBargainFirst:List[String]=Nil
+
+    //批量计算开始
     val lg = AlotOFBargainList.map{line =>
    //   process(line)
 //      def process(bargainDetial:String,
@@ -190,13 +192,13 @@ object Map2222ALotOfNewModelDriver {
 
         val pfloor = bargainDetialArrays(4).toInt
         val pTotalFloor= bargainDetialArrays(5).toInt
-        val psquare =  bargainDetialArrays(5).toInt
+        val psquare =  bargainDetialArrays(2).toDouble
         val pfaceTo =bargainDetialArrays(3)
         val pbuildYear = bargainDetialArrays(8)
 
         val  targetCommunityList =collectMapCommunity.get(pcommunityID).getOrElse(null)
 
-        val  targetSimilarCommunityList:Seq[String] = collectMapinitializesSC.get(pcommunityID).getOrElse(null)
+        //val  targetSimilarCommunityList:Seq[String] = collectMapinitializesSC.get(pcommunityID).getOrElse(null)
 
         var firstResultList :List[((Double,Bargain,BigDecimal))] =Nil
         var secondToBargainList :List[((Double,Bargain,BigDecimal))] =Nil
@@ -218,8 +220,8 @@ object Map2222ALotOfNewModelDriver {
           var similar:Double= setting("测试系数").diffrentCommunity
           //   println("\n\n************************************************\nFive FIVE\n************************************")
           val similarCommunityListReal:List[(String,Double)] = targetCommunityList==null match {
-            // case true => GetSimilarCommunity2(GetAllCommunityToArray,setting,pLocation_Longitude,pLocation_Latitude).toList
-            case true => List()
+            case true => GetSimilarCommunity2(GetAllCommunityToArray,setting,pLocation_Longitude,pLocation_Latitude).toList
+           // case true => List()
             case false =>  collectMapinitializesSC.get(pcommunityID).map{x=>
               x.toArray.filter(scl =>{
 
@@ -412,14 +414,16 @@ object Map2222ALotOfNewModelDriver {
 
     }.cache()
     val lg2 = lg.map{x => x._1}
-      lg2.saveAsTextFile("lg/gxd/tableOne")
+     lg2.saveAsTextFile("lg/gxd/tableOne")
+   // lg2.count()
 
     //val lg3 = lg.filter(x => x._6 != "").flatMap{
     val lg3 = lg.flatMap{
       x =>
         List(x._2,x._3,x._4,x._5,x._6)
     }
-    lg3.saveAsTextFile("lg/gxd/tableTwo")
+    lg3.count()
+   lg3.saveAsTextFile("lg/gxd/tableTwo")
 
 
 
@@ -427,7 +431,7 @@ object Map2222ALotOfNewModelDriver {
 
   //  println("listBargainFirst%%%%%%%%%%%%%%%%%%%%%:"+listBargainFirst.size)
 
-    sc.parallelize(listBargainFirst).saveAsTextFile("lg/gxd/liu")
+  //  sc.parallelize(listBargainFirst).saveAsTextFile("lg/gxd/liu")
 
 
   }

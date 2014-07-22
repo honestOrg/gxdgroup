@@ -1,5 +1,4 @@
-package cn.com.gxdgroup.dataplatform.avm.function.verson5
-
+package cn.com.gxdgroup.dataplatform.avm.function.verson7
 import cn.com.gxdgroup.dataplatform.avm.model._
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.{SparkConf, SparkContext}
@@ -29,85 +28,39 @@ import scala.concurrent.{Await, Future}
 import scala.BigDecimal
 import cn.com.gxdgroup.dataplatform.avm.utils.{JedisUtils, AVMUtils}
 import scala.collection.mutable.ArrayBuffer
-import redis.clients.jedis.{Jedis, Tuple}
+import redis.clients.jedis.{Pipeline, Jedis, Tuple}
 import scala.collection.JavaConversions._
 import java.util
-
 /**
- * Created by ThinkPad on 14-6-23.
+ * Created by ThinkPad on 14-7-3.
  */
-object FunctionVerson5 {
-
+object FunctionVerson7 {
   def main(args: Array[String]) {
 
-//    val conf = new SparkConf()
-//    conf.setMaster("spark://cloud40:7077")
-//    conf.set("spark.speculation", "false")
-//
-//    // shuffle configs
-//    conf.set("spark.default.parallelism", "320")
-//    conf.set("spark.shuffle.consolidateFiles","true")
-//
-//    conf.set("spark.shuffle.file.buffer.kb", "200")
-//    conf.set("spark.reducer.maxMbInFlight", "96")
-//
-//    conf.set("spark.rdd.compress","true")
-//
-//    conf.set("spark.worker.timeout","180")
-//    conf.setSparkHome("/opt/cloudera/parcels/CDH/lib/spark/")
-//    conf.set("spark.executor.memory","20g")
-//    conf.set("spark.akka.threads", "300")
-//    conf.set("spark.storage.blockManagerTimeoutIntervalMs", "180000")
-//    conf.set("spark.blockManagerHeartBeatMs", "80000")
-//    val sc = new SparkContext(conf)
 
     val sc = new SparkContext("spark://cloud40:7077", "gxd",
       System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
 
-    // val GetAllIndex = sc.textFile(args(0))
-
     val AlotOFBargainList = sc.textFile(args(0), args(1).toInt)
-    val cityName = List("北京市","上海市","广州市","深圳市","成都市","天津市","苏州市","杭州市","重庆市","南京市","武汉市","大连市","青岛市","西安市","郑州市","长沙市","鞍山市","保定市","北海市","包头市","宝鸡市","长春市","常州市","常熟市","东莞市","东营市","德州市","鄂尔多斯市","佛山市","福州市","贵阳市","桂林市","赣州市","哈尔滨市","海口市","合肥市","呼和浩特市","惠州市","衡水市","邯郸市","淮安市","湖州市","济南市","吉林市","江门市","嘉兴市","金华市","江阴市","昆明市","昆山市","兰州市","洛阳市","廊坊市","连云港市","柳州市","聊城市","绵阳市","马鞍山市","南昌市","南宁市","宁波市","南通市","秦皇岛市","泉州市","日照市","沈阳市","石家庄市","三亚市","绍兴市","汕头市","宿迁市","太原市","唐山市","泰州市","台州市","无锡市","威海市","潍坊市","温州市","吴江市","乌鲁木齐市","芜湖市","厦门市","徐州市","湘潭市","西宁市","新乡市","烟台市","扬州市","宜昌市","银川市","营口市","珠海市","中山市","镇江市","湛江市","株洲市","淄博市","张家港市")
-    var AVMINITRedis2 =  new java.util.HashMap[String, java.util.Map[String, String]]()
-    var CommunityRedis2 = new java.util.HashMap[String, java.util.Map[String, String]]()
-    var BargainRedis2 = new java.util.HashMap[String, java.util.Map[String, String]]()
-    var IndexRedis2 = new java.util.HashMap[String, java.util.List[String]]()
+    //val cityName = List("北京市","上海市","广州市","深圳市","成都市","天津市","苏州市","杭州市","重庆市","南京市","武汉市","大连市","青岛市","西安市","郑州市","长沙市","鞍山市","保定市","北海市","包头市","宝鸡市","长春市","常州市","常熟市","东莞市","东营市","德州市","鄂尔多斯市","佛山市","福州市","贵阳市","桂林市","赣州市","哈尔滨市","海口市","合肥市","呼和浩特市","惠州市","衡水市","邯郸市","淮安市","湖州市","济南市","吉林市","江门市","嘉兴市","金华市","江阴市","昆明市","昆山市","兰州市","洛阳市","廊坊市","连云港市","柳州市","聊城市","绵阳市","马鞍山市","南昌市","南宁市","宁波市","南通市","秦皇岛市","泉州市","日照市","沈阳市","石家庄市","三亚市","绍兴市","汕头市","宿迁市","太原市","唐山市","泰州市","台州市","无锡市","威海市","潍坊市","温州市","吴江市","乌鲁木齐市","芜湖市","厦门市","徐州市","湘潭市","西宁市","新乡市","烟台市","扬州市","宜昌市","银川市","营口市","珠海市","中山市","镇江市","湛江市","株洲市","淄博市","张家港市")
 
-  // val cityName222:String = "北京市,上海市,广州市,深圳市,哈尔滨"
-    val cityName222:String = "广州市"
-    val cityArrays = cityName222.split(",")
+//上海市,北京市,哈尔滨市,天津市,广州市,成都市,杭州市,武汉市,深圳市,重庆市,青岛市
 
-    /*
-      JedisUtils.initPool
-    val j = new Jedis("192.168.1.41",6379)
-    cityName.foreach{line=>
-      JedisUtils.initPool
-      val j = new Jedis("192.168.1.41",6379)
-    if(j.exists(line+"案例表")){
-      AVMINITRedis2.put(line,j.hgetAll(line+"AVMINIT"))
-      CommunityRedis2.put(line,j.hgetAll(line+"小区表"))
-      BargainRedis2.put(line,j.hgetAll(line+"案例表"))
-      IndexRedis2.put(line,j.lrange(line.replace("市",""),0,-1))
-    }
-  }
+    //val cityName222 = "上海市,北京市,哈尔滨市,天津市,广州市,成都市,杭州市,武汉市,深圳市,重庆市,青岛市"
+    //val cityName222 = "上海市,北京市,哈尔滨市,天津市,广州市,成都市,杭州市,武汉市,深圳市,重庆市,青岛市"
+   // val cityArrays = cityName222.split(",")
+    val cityArrays = args(2)
+   // val city99 = "北京,上海,广州,深圳,成都,天津,苏州,杭州,重庆,南京,武汉,大连,青岛,西安,郑州,长沙,鞍山,保定,北海,包头,宝鸡,长春,常州,常熟,东莞,东营,德州,鄂尔多斯,佛山,福州,贵阳,桂林,赣州,哈尔滨,海口,合肥,呼和浩特,惠州,衡水,邯郸,淮安,湖州,济南,吉林,江门,嘉兴,金华,江阴,昆明,昆山,兰州,洛阳,廊坊,连云港,柳州,聊城,绵阳,马鞍山,南昌,南宁,宁波,南通,秦皇岛,泉州,日照,沈阳,石家庄,三亚,绍兴,汕头,宿迁,太原,唐山,泰州,台州,无锡,威海,潍坊,温州,吴江,乌鲁木齐,芜湖,厦门,徐州,湘潭,西宁,新乡,烟台,扬州,宜昌,银川,营口,珠海,中山,镇江,湛江,株洲,淄博,张家港"
+//val city99="广州,上海,哈尔滨,天津,成都,杭州,武汉,深圳,重庆,青岛,北京"
+//  val city99="上海市,北京市,哈尔滨市,天津市,广州市,成都市,杭州市,武汉市,深圳市,重庆市,青岛市"
+//    val AlotOFFilterBargainList = AlotOFBargainList.filter{line=>
+//      val cityName = line.split("\t")(1)
+//      val citynotshi = cityName.replace("市","")
+//      cityName222.contains(cityName)&&city99.contains(citynotshi)
+//    }
 
-*/
 
     JedisUtils.initPool
-    val j = new Jedis("192.168.1.41",6379)
-    cityArrays.map{line=>
-      AVMINITRedis2.put(line,j.hgetAll(line+"AVMINIT"))
-      CommunityRedis2.put(line,j.hgetAll(line+"小区表"))
-      BargainRedis2.put(line,j.hgetAll(line+"案例表"))
-      IndexRedis2.put(line,j.lrange(line.replace("市",""),0,-1))
-    }
-   val filterBargainList = AlotOFBargainList.filter{line =>
-    val cityName = line.split("\t")(1)
-     AVMINITRedis2.containsKey(cityName)
-    }
-
-    // println("count:#########:"+byCountyBargains.count())
-
     val j2: Jedis = JedisUtils.getJedis
     val threadholdDetal = j2.hget("THREADHOLD", "测试阈值")
 
@@ -149,10 +102,36 @@ object FunctionVerson5 {
     //批量计算开始*********************&&&&&&&&&*******
 
 
- //   val inint = sc.accumulable(0)
+    //   val inint = sc.accumulable(0)
 
-    val lgfinal = filterBargainList.map {line =>
-     //println("okokokokokokokokokoko")
+    val lgfinal = AlotOFBargainList.mapPartitions {iter =>{
+      JedisUtils.initPool
+      val j = new Jedis("192.168.1.41",6379)
+
+
+      var AVMINITRedis2 =  new java.util.HashMap[String, java.util.Map[String, String]]()
+      var CommunityRedis2 = new java.util.HashMap[String, java.util.Map[String, String]]()
+      var BargainRedis2 = new java.util.HashMap[String, java.util.Map[String, String]]()
+      var IndexRedis2 = new java.util.HashMap[String, java.util.List[String]]()
+    println("redis start time :"+System.currentTimeMillis())
+      /*
+      cityArrays.map{line=>
+        AVMINITRedis2.put(line,j.hgetAll(line+"AVMINIT"))
+        CommunityRedis2.put(line,j.hgetAll(line+"小区表"))
+      //  BargainRedis2.put(line,j.hgetAll(line+"案例表"))
+        BargainRedis2.put(line,j.hgetAll(line+"案例表_TEST"))
+        IndexRedis2.put(line,j.lrange(line.replace("市",""),0,-1))
+      }
+      */
+      AVMINITRedis2.put(cityArrays,j.hgetAll(cityArrays+"AVMINIT"))
+      CommunityRedis2.put(cityArrays,j.hgetAll(cityArrays+"小区表"))
+      //  BargainRedis2.put(line,j.hgetAll(line+"案例表"))
+      BargainRedis2.put(cityArrays,j.hgetAll(cityArrays+"案例表_TEST"))
+      IndexRedis2.put(cityArrays,j.lrange(cityArrays.replace("市",""),0,-1))
+
+      println("redis end time :"+System.currentTimeMillis())
+      iter.map{line =>
+      //println("okokokokokokokokokoko")
         val lineArray = line.split("\t")
         var collectMapinitializesSC = AVMINITRedis2.get(lineArray(1))
         var collectMapCommunity = CommunityRedis2.get(lineArray(1))
@@ -161,16 +140,17 @@ object FunctionVerson5 {
         var indexListByRedis = IndexRedis2.get(lineArray(1))
 
         val bargainForImpal =
-        lineArray(1) + "\t" +
-        lineArray(2) + "\t" +
-        lineArray(4) + "\t" +
-        lineArray(7) + "\t" +
-        lineArray(8) + "\t" +
-        lineArray(5) + "\t" +
-        lineArray(6) + "\t" +
-        lineArray(11) + "\t" +
-        lineArray(10) + "\t" +
-        lineArray(9)
+          lineArray(1) + "\t" +
+            lineArray(2) + "\t" +
+            lineArray(4) + "\t" +
+            lineArray(7) + "\t" +
+            lineArray(8) + "\t" +
+            lineArray(5) + "\t" +
+            lineArray(6) + "\t" +
+            lineArray(11) + "\t" +
+            lineArray(10) + "\t" +
+            lineArray(9)+"\t"+
+           lineArray(13)
 
 
         val bargainID = lineArray(0)
@@ -185,7 +165,7 @@ object FunctionVerson5 {
         val pbuildYear = lineArray(11)
 
 
-        val cityName = lineArray(1)
+     //   val cityName = lineArray(1)
         val targetCommunityList = collectMapCommunity.get(pcommunityID)
 
         //val  targetSimilarCommunityList:Seq[String] = collectMapinitializesSC.get(pcommunityID).getOrElse(null)
@@ -194,7 +174,7 @@ object FunctionVerson5 {
         var secondToBargainList: List[((Double, Bargain2, BigDecimal))] = Nil
 
         //val threadTarget = thresholds.filter(lines => lines._1.equals("测试阈值")).head
-       // println("\n\n************************************************\nFirst\n************************************")
+        // println("\n\n************************************************\nFirst\n************************************")
         //  println("\n\n************************************************\ntargetCommunityList\n************************************:"+targetCommunityList.size)
         val bargainVal = allBargains.get(pcommunityID)
         var bargainList: List[Bargain2] = Nil
@@ -205,10 +185,10 @@ object FunctionVerson5 {
           //println("德国：" + bargainsArray.size)
           bargainsArray.map {
             line =>
-        //    println("line:@@@@@@@@@@@:"+line)
+            //    println("line:@@@@@@@@@@@:"+line)
 
               val bargainDetailArray = line.split("\t")
-          //  println("line:@@@@@@@@@@@:"+bargainDetailArray.length)
+              //  println("line:@@@@@@@@@@@:"+bargainDetailArray.length)
               val bargain = new Bargain2(
 
                 bargainDetailArray(0),
@@ -235,11 +215,11 @@ object FunctionVerson5 {
         }
         //   val  bargainList:Seq[Bargain] = bargains.get(pcommunityID).getOrElse(null)
         if (targetCommunityList != null && bargainList != null) {
-        println("time1:"+System.currentTimeMillis())
+        //  println("time1:"+System.currentTimeMillis())
           firstResultList = mapCalculateModel(bargainList, threadTarget, setting,
             pcommunityID, pfloor, pTotalFloor, psquare, pfaceTo, pbuildYear, pLocation_Longitude, pLocation_Latitude)
 
-          println("firstResultList:$$$$$$$$$$$:" + firstResultList.size)
+         // println("firstResultList:$$$$$$$$$$$:" + firstResultList.size)
         }
 
         //println("\n\n************************************************\nSecond\n************************************"       + firstResultList.size)
@@ -247,21 +227,24 @@ object FunctionVerson5 {
 
           //println("\n\n************************************************\nFive FIVE\n************************************")
           val similarCommunityListReal: List[(String, Double)] = targetCommunityList == null match {
-            case true => //GetSimilarCommunity3(setting,pLocation_Longitude,pLocation_Latitude)
-              var SimilarCommunity: List[(String, Double)] = Nil
-//println("00000000000000000000000000000000000")
-              val it = collectMapCommunity.values().iterator()
-              while (it.hasNext) {
-                val arraysFields = it.next().split("\t")
-                //因为这个经纬度是来至于Community所以下标是7、6
-                val distance = AVMUtils.GetDistance(pLocation_Latitude, pLocation_Longitude,
-                  arraysFields(7).toDouble, arraysFields(6).toDouble)
-                if (distance < setting("测试系数").maxDistance) {
-                  SimilarCommunity = SimilarCommunity ++ List((arraysFields(0), distance))
-                }
-              }
-              SimilarCommunity
-            // case true => List()
+            /*
+                       case true =>
+
+                         var SimilarCommunity: List[(String, Double)] = Nil
+           //              //println("00000000000000000000000000000000000")
+           //              val it = collectMapCommunity.values().iterator()
+           //              while (it.hasNext) {
+           //                val arraysFields = it.next().split("\t")
+           //                //因为这个经纬度是来至于Community所以下标是7、6
+           //                val distance = AVMUtils.GetDistance(pLocation_Latitude, pLocation_Longitude,
+           //                  arraysFields(7).toDouble, arraysFields(6).toDouble)
+           //                if (distance < setting("测试系数").maxDistance) {
+           //                  SimilarCommunity = SimilarCommunity ++ List((arraysFields(0), distance))
+           //                }
+           //              }
+                         SimilarCommunity
+           */
+             case true => List()
             case false =>
               val array42Fields = collectMapCommunity.get(pcommunityID).split("\t")
               //*******************************
@@ -316,19 +299,24 @@ object FunctionVerson5 {
                 //println("similar!kaishi:"+similar+":"+setting("测试系数").maxDistance+":"+setting("测试系数").distancePower)
                 similar = similar * Math.pow((setting("测试系数").maxDistance + 1 - scl._2) / setting("测试系数").maxDistance, setting("测试系数").distancePower)
                 //    println("similar:"+similar)
-                   //     println("scl._1@@@@@@@@@@@@@:"+scl._1+"\t"+scl._2)
+                //     println("scl._1@@@@@@@@@@@@@:"+scl._1+"\t"+scl._2)
                 //    val  bargainList2:Seq[Bargain] =  bargains.get(scl._1).getOrElse(null)
                 var bargainList2: List[Bargain2] = Nil
 
                 val bargainVal2 = allBargains.get(scl._1)
                 if (bargainVal2 != null) {
-               //   println("yyyyyyyyyyyy:"+bargainVal2)
+                  //   println("yyyyyyyyyyyy:"+bargainVal2)
                   val bargainsArray2 = bargainVal2.split(",")
 
                   bargainsArray2.map {
                     line =>
-                    //          println("line:@@@@@@@@@@@:"+line)
+
+
                       val bargainDetailArray = line.split("\t")
+                    if(bargainDetailArray.length!=15){
+                 //     println("line:@@@@@@@@@@@:"+line)
+                    }
+
                       val bargain = new Bargain2(
                         bargainDetailArray(0),
                         bargainDetailArray(1),
@@ -352,19 +340,19 @@ object FunctionVerson5 {
                 if (bargainList2 != null) {
                   secondToBargainList = secondToBargainList ++ mapCalculateModel(bargainList2, threadTarget, setting,
                     pcommunityID, pfloor, pTotalFloor, psquare, pfaceTo, pbuildYear, pLocation_Longitude, pLocation_Latitude).map(line => {
-                     //     println("similar*line._1:"+similar*line._1)
+                    //     println("similar*line._1:"+similar*line._1)
                     (similar * line._1, line._2, line._3)
                   })
                 }
                 secondToBargainList
-                   //   println("secondToBargainList!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:"+secondToBargainList.size)
+                //   println("secondToBargainList!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:"+secondToBargainList.size)
 
               })
           }
 
         }
 
-         // println("\n\n************************************************\nThird\n************************************")
+        // println("\n\n************************************************\nThird\n************************************")
         //两个最终结果进行合并
         //          println("firstResultList:##########:"+firstResultList.size)
         //      println("secondToBargainList:##########:"+secondToBargainList.size)
@@ -419,7 +407,7 @@ object FunctionVerson5 {
             add6month.add(Calendar.MONTH, 6)
 
             if (add6month.getTimeInMillis < new Date().getTime) {
-                   println("world cup!!!!!!!!!!!!!!!!!!!!!!!!!")
+          //    println("world cup!!!!!!!!!!!!!!!!!!!!!!!!!")
               val oldvalueList = beijingIndexList.filter(index =>
 
                 index.dateTime.getYear == line._2.bargainTime.getYear &&
@@ -436,7 +424,7 @@ object FunctionVerson5 {
 
           }).sortBy(x => -x._1).take(5).toList
 
-                println("22Size:" + pfaceToBargainfinalList22.size)
+        //  println("22Size:" + pfaceToBargainfinalList22.size)
           //这就是最终值
           if (pfaceToBargainfinalList22.size > 4) {
 
@@ -448,12 +436,12 @@ object FunctionVerson5 {
               sumWeigth += x._1
 
               avmBagainFianlReault.adjustPrice = x._3
-                   println("adjustPrice: PRICE:"+x._3)
-                   println("privePrice: PRICE:"+x._2.bargainPrice)
+             // println("adjustPrice: PRICE:"+x._3)
+             // println("privePrice: PRICE:"+x._2.bargainPrice)
               avmBagainFianlReault.Case = x._2
               avmBagainFianlReault.Weight = x._1
-                     println("&&&&&&&&&&&&&&&&:"+avmBagainFianlReault.Case.id)
-                    println("&&&&&&&&&&&&&&&&WEIGHT:"+avmBagainFianlReault.Weight)
+             // println("&&&&&&&&&&&&&&&&:"+avmBagainFianlReault.Case.id)
+             // println("&&&&&&&&&&&&&&&&WEIGHT:"+avmBagainFianlReault.Weight)
               list5FianlBargain = List(avmBagainFianlReault) ++ list5FianlBargain
 
               // rst.Price = Math.Ceiling(cases.Sum(m => m.AdjustPrice * (decimal)m.Weight) / (decimal)sumWeight);
@@ -468,7 +456,7 @@ object FunctionVerson5 {
               sumadjust_Price += (x._3.toDouble * x._1 / sumWeigth)
 
             })
-              println("sumadjust_Price: SUM size:" +sumadjust_Price)
+       //     println("sumadjust_Price: SUM size:" +sumadjust_Price)
             var sumadjust_Price11 = sumadjust_Price
             //下面是最终的价钱
             val priceFinal333 = Math.ceil(sumadjust_Price11)
@@ -476,11 +464,13 @@ object FunctionVerson5 {
             resultprice.price = priceFinal333
             resultprice.list = list5FianlBargain
             resultprice
-               println("price:"+resultprice.price)
-               println("Object resultprice:"+resultprice.list.head.Case.id)
+           // println("price:"+resultprice.price)
+            //println("Object resultprice:"+resultprice.list.head.Case.id)
             val array5simially = resultprice.list.map {
               line =>
-                line.Case.id + "\t" + line.Case.communityName + "\t" + line.Case.currentFloor + "\t" + line.Case.totalFloor + "\t" + line.Case.square + "\t" + line.Case.FaceTo + "\t" + line.Case.BuildYear
+                line.Case.id + "\t" + line.Case.communityName + "\t" + line.Case.currentFloor +
+                  "\t" + line.Case.totalFloor + "\t" + line.Case.square + "\t" + line.Case.FaceTo +
+                  "\t" + line.Case.BuildYear + "\t" + line.Case.bargainPrice
 
             }.toArray
             //由价格和本身自己批量查询的Bargain详细信息
@@ -490,8 +480,8 @@ object FunctionVerson5 {
             val sim3 = bargainID + "\t" + array5simially(2)
             val sim4 = bargainID + "\t" + array5simially(3)
             val sim5 = bargainID + "\t" + array5simially(4)
-            println("finalResultString*111111111111111111***************:"+finalResultString.size)
-            println("time2:"+System.currentTimeMillis())
+         //   println("finalResultString*111111111111111111***************:"+finalResultString.size)
+         //   println("time2:"+System.currentTimeMillis())
             (finalResultString, sim1, sim2, sim3, sim4, sim5)
 
 
@@ -523,9 +513,10 @@ object FunctionVerson5 {
           listBargainFirst = defaultResultVal2 :: listBargainFirst
           (defaultResultVal2, "", "", "", "", "")
         }
-
     }
 
+    }
+    }
     lgfinal.cache()
 
     val lg2 = lgfinal.map {
@@ -539,13 +530,13 @@ object FunctionVerson5 {
       //         println("lg/gxd/tableOnex._5:::"+x._5)
       //        println("lg/gxd/tableOnex._6:::"+x._6)
     }
-    lg2.saveAsTextFile("lg/gxd/avm_price")
+    lg2.saveAsTextFile("lg/gxd/yanshi_one/"+args(2))
 
     val lg3 = lgfinal.filter(x => x._6 != "").flatMap {
       x =>
         List(x._2, x._3, x._4, x._5, x._6)
     }
-    lg3.saveAsTextFile("lg/gxd/avm_bargains")
+    lg3.saveAsTextFile("lg/gxd/yanshi_two/"+args(2))
 
 
 
@@ -557,24 +548,7 @@ object FunctionVerson5 {
   }
 
 
-  /*
-  def  GetSimilarCommunity3( setting:Map[String,Setting],
-                             pLongitude:Double,
-                             pLatitude:Double) :List[(String,Double)]={
-    var SimilarCommunity:List[(String,Double)] = Nil
 
-    val it = collectMapCommunity.values().iterator()
-    while(it.hasNext){
-      val arraysFields = it.next().split("\t")
-      val distance = AVMUtils.GetDistance(pLatitude,pLongitude,
-        arraysFields(5).toDouble,arraysFields(4).toDouble)
-      if(distance < setting("测试系数").maxDistance){
-        SimilarCommunity =  SimilarCommunity ++ List((arraysFields(0),distance))
-      }
-    }
-    SimilarCommunity
-  }
-  */
   def mkdirdou(num: Int): String = {
     var dou = ""
     for (i <- 0 to num) {
@@ -590,11 +564,11 @@ object FunctionVerson5 {
     val threadTarget = thresholds
     val mineCoummunityBargain = bargainList.filter(line => (new Date().
       getTime - line.bargainTime.getTime) >= settingBroadcast("测试系数").maxMonth * 30 * 24 * 3600).filter(
-      (line => (line.totalFloor <= threadTarget.CommunityStyle
-        || pTotalFloor > threadTarget.CommunityStyle)
-        && (pTotalFloor <= threadTarget.CommunityStyle ||
-        line.totalFloor > threadTarget.CommunityStyle))
-    )
+        (line => (line.totalFloor <= threadTarget.CommunityStyle
+          || pTotalFloor > threadTarget.CommunityStyle)
+          && (pTotalFloor <= threadTarget.CommunityStyle ||
+          line.totalFloor > threadTarget.CommunityStyle))
+      )
     //  println("mineCoummunityBargain$$$$$$$$:"+mineCoummunityBargain.size)
     //     println("\n\n************************************************\nfloorRule\n************************************")
     val flRuleList = settingBroadcast("测试系数").floorRule.toList
@@ -623,7 +597,7 @@ object FunctionVerson5 {
       }
 
       weight = weight * flCoefficientList.get(Math.abs(flRulePoint_Key - targetfloorIntKey)).getOrElse(0.0)
-       // println("楼层分段::::"+cb.id+":"+weight)
+      // println("楼层分段::::"+cb.id+":"+weight)
       (weight, cb)
     }).filter(_._1 != 0.0)
 
@@ -674,14 +648,14 @@ object FunctionVerson5 {
         val buildCha = Math.abs(PointbuildYear - tagertbuildYear)
         val buildKey = buildYearCofficent.get(buildCha).getOrElse(0.0)
         weight = bgs._1 * buildKey
-             //   println("建成年份::::"+bgs._2.id+":"+weight)
+        //   println("建成年份::::"+bgs._2.id+":"+weight)
         (weight, bgs._2)
       } else {
         (0.0, bgs._2)
       }
     }).filter(_._1 != 0.0)
 
-   //  println("buildYearBargain!!!!!!!!:"+buildYearBargain.size)
+    //  println("buildYearBargain!!!!!!!!:"+buildYearBargain.size)
 
 
     //根据挂牌时间开始过滤，这里的buildYearBargain也应该判断是否为空
@@ -720,7 +694,7 @@ object FunctionVerson5 {
 
       }
       if (!square_adjust_List.isEmpty) {
-       //    println("777777777777777777")
+        //    println("777777777777777777")
         val square_adjust_weight = square_adjust_List.map(line => line match {
           case (x: Double, y: Double) =>
             //println("doubl66666666666666666e")
@@ -731,9 +705,9 @@ object FunctionVerson5 {
       } else {
         weight = tb._1 * 0.0
 
-       //   println("为空。。。。。。。。。")
+        //   println("为空。。。。。。。。。")
       }
-       // println("面积开始过滤::::"+tb._2.id+":"+weight)
+      // println("面积开始过滤::::"+tb._2.id+":"+weight)
       (weight, tb._2)
     }).filter(_._1 != 0.0)
     //println("square_adjust_coefficientBargain333333333333"+square_adjust_coefficientBargain.size)
@@ -742,12 +716,12 @@ object FunctionVerson5 {
     val pfaceToBargain = square_adjust_coefficientBargain.map(line => {
       weight = line._1 * 1
       //(权重，bargain，bargainPrice)
-       //  println("line._2.bargainPrice%%%%%%%%%%%%%%%  :"+line._2.bargainPrice+"\t"+weight)
+      //  println("line._2.bargainPrice%%%%%%%%%%%%%%%  :"+line._2.bargainPrice+"\t"+weight)
       (weight, line._2, line._2.bargainPrice)
 
     }).filter(_._1 > 0.0)
 
-  //   println("pfaceToBargain4444444444444:"+pfaceToBargain.size)
+    //   println("pfaceToBargain4444444444444:"+pfaceToBargain.size)
     pfaceToBargain.toList
 
   }

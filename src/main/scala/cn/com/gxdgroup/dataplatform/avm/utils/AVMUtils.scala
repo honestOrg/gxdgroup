@@ -29,7 +29,7 @@ object AVMUtils {
     d * Math.PI / 180.0;
   }
 
-  val  Earth_radius:Double =6378.137
+  val  Earth_radius:Double =6378137
 
   def GetDistance(lat1:Double,lng1:Double,lat2:Double,lng2:Double):Double ={
 
@@ -40,6 +40,7 @@ object AVMUtils {
     val s:Double = 2 * math.asin((math.sqrt(math.pow(math.sin(a / 2), 2) +math.cos(radLat1) * math.cos(radLat2) * math.pow(math.sin(b / 2), 2))))
     val s1 = s * Earth_radius
     math.round(s1 * 10000) / 10000
+
   }
 
 
@@ -57,7 +58,7 @@ object AVMUtils {
     date
 
   }
-
+/*
   //初始化
   def initAll(sc:SparkContext,args:Array[String]) ={
     // val GetAllIndex = sc.newAPIHadoopFile[LongWritable, Text, TextInputFormat](args(0))
@@ -179,10 +180,10 @@ object AVMUtils {
       val SimilarCommunity =
         AllCommunityTo_Array.map(desc =>(desc,
 
-          AVMUtils.GetDistance(target(4).toDouble,
-            target(5).toDouble,
-            desc.split("\t")(4).toDouble,
-            desc.split("\t")(5).toDouble)))
+          AVMUtils.GetDistance(target(5).toDouble,
+            target(4).toDouble,
+            desc.split("\t")(5).toDouble,
+            desc.split("\t")(4).toDouble)))
           .filter(c =>(!c._1.split("\t")(0).
           ==(target(0)))&&c._2<m_Setting("测试系数").maxDistance)
       //下面avmModel
@@ -743,4 +744,5 @@ object AVMUtils {
     pfaceToBargain.toList
 
   }
+ */
 }

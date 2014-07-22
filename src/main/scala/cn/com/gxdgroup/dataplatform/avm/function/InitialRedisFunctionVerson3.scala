@@ -39,7 +39,7 @@ object InitialRedisFunctionVerson3 {
       System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
     //jedis初始化
     //SETTING初始化
-    /*
+
     val buildYear_coefficient =Map[Double,Double]("0".toDouble -> 1,"1".toDouble -> 0.95,"2".toDouble ->0.9,"3".toDouble ->0.84,"4".toDouble ->0.8,"5".toDouble ->0.75,"6".toDouble->0.7,"7".toDouble->0.65,"8".toDouble->0.6,"9".toDouble-> 0.55,"10".toDouble-> 0.5,"11".toDouble-> 0.45,"12".toDouble-> 0.4,"13".toDouble-> 0.35,"14".toDouble-> 0.3,"15".toDouble-> 0.25,"16".toDouble-> 0.2,"17".toDouble-> 0.15,"18".toDouble-> 0.1)
     val floor_coefficient = Map[Int,Double](0 ->1,1 ->0.85,2 ->0.6)
     val floor_rule=Map[Int,Section](0 ->Section(0,10),1 ->Section(10,20),2 -> Section(20,100))
@@ -52,13 +52,13 @@ object InitialRedisFunctionVerson3 {
     val getAllBargains = sc.textFile(args(2),args(3).toInt)
 
     //redis初始化
-*/
+
     //val get99CountryIndex = sc.textFile(args(0))
    // val getTimeIndex = sc.textFile(args(1))
     val AVMLOAD:String = "AVMINIT"
     val COMMUNITYLOAD:String = "COMMUNITYINIT"
     val BARGAINSLOAD:String = "BARGAINSINIT"
-    val threadholdTextFile = sc.textFile(args(0))
+   // val threadholdTextFile = sc.textFile(args(0))
     /*
             if(j.exists(AVMLOAD)){
               j.del(AVMLOAD)
@@ -70,7 +70,7 @@ object InitialRedisFunctionVerson3 {
               j.del(BARGAINSLOAD)
             }
     */
-    /*
+/*
     val commIDAndDetal =   GetAllCommunity16.map{line =>
       val communityDetail = line.split("\t")
       (communityDetail(0),line)
@@ -98,7 +98,7 @@ object InitialRedisFunctionVerson3 {
       cartesianVal
 
     }
-
+*/
     val initialCartesian = GetAllCommunity16.cartesian(GetAllCommunity16).filter{line =>
       line._1.split("\t")(0)!=line._2.split("\t")(0)
     }.map{
@@ -200,7 +200,7 @@ object InitialRedisFunctionVerson3 {
         pipe.sync
       }
     }
-*/
+
       //Index初始化操作
 
 
@@ -223,19 +223,19 @@ object InitialRedisFunctionVerson3 {
       }
 
   ***********************************/
-
+/*
     //Threadhold入库redis,因为就一条
     val getThreadholdString = threadholdTextFile.first()
     val threadKey = getThreadholdString.split(",")(1)
     JedisUtils.initPool
     val j: Jedis = JedisUtils.getJedis
     j.hset("THREADHOLD",threadKey,getThreadholdString)
+*/
 
 
 
 
-
-
+}
 
 
     // JedisUtils.close(j)

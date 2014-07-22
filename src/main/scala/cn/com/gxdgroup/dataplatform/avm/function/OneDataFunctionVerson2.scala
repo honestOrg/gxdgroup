@@ -50,10 +50,10 @@ object OneDataFunctionVerson2 {
     // val GetAllIndex = sc.textFile(args(0))
     val GetAllThreshold = sc.textFile(args(0))
     val GetAllCommunity = sc.textFile(args(1))
-    val GetAllBargainTextFile = sc.textFile(args(2))
+    //val GetAllBargainTextFile = sc.textFile(args(2))
 
 
-    val bargainDetial: String = args(3)
+    val bargainDetial: String = args(2)
     val bargainDetialArrays = bargainDetial.split(",")
 
     JedisUtils.initPool

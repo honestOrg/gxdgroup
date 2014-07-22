@@ -1,4 +1,5 @@
 //package cn.com.gxdgroup.dataplatform.avm.function
+//
 //import cn.com.gxdgroup.dataplatform.avm.model._
 //import org.apache.spark.deploy.SparkHadoopUtil
 //import org.apache.spark.SparkContext
@@ -22,26 +23,25 @@
 //
 ///**
 // * Created by ThinkPad on 14-5-30.
-// */
-//object Test2SplitDriver extends Serializable{
+// */on
+//object TestSplit3Driver extends Serializable{
 //  def main(args: Array[String]){
-//    //        val conf = SparkHadoopUtil.get.newConfiguration()
-//    //        val sc = new SparkContext("spark://cloud40:7077", "gxd", System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass), Map(),
-//    //          InputFormatInfo.computePreferredLocations(Seq(new InputFormatInfo(conf, classOf[TextInputFormat], args(0)))))
+////        val conf = SparkHadoopUtil.get.newConfiguration()
+////        val sc = new SparkContext("spark://cloud40:7077", "gxd", System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass), Map(),
+////          InputFormatInfo.computePreferredLocations(Seq(new InputFormatInfo(conf, classOf[TextInputFormat], args(0)))))
 //    val sc = new SparkContext("spark://cloud40:7077", "gxd",
-//      System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
-//    //val sc = new SparkContext("spark://cloud40:7077", "gxd",
-//    //
-//    //  System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass),
-//    //
-//    //  Map("spark.serializer"->"org.apache.spark.serializer.KryoSerializer","spark.kryo.registrator"->"cn.com.gxdgroup.dataplatform.avm.model.AVMServialize"))
+//           System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
+////val sc = new SparkContext("spark://cloud40:7077", "gxd",
+////
+////  System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass),
+////
+////  Map("spark.serializer"->"org.apache.spark.serializer.KryoSerializer","spark.kryo.registrator"->"cn.com.gxdgroup.dataplatform.avm.model.AVMServialize"))
 //
-//    val GetAllIndex = sc.textFile(args(0))
-//    val GetAllThreshold = sc.textFile(args(1))
-//    val GetAllCommunity = sc.textFile(args(2))
-//    val GetAllCommunity16 = sc.textFile(args(2),args(4).toInt)
-//
-//    val GetAllBargainTextFile = sc.textFile(args(3))
+//    val GetAllIndex = sc.textFile(args(0)).cache()
+//    val GetAllThreshold = sc.textFile(args(1)).cache()
+//    val GetAllCommunity = sc.textFile(args(2)).cache()
+//    val GetAllCommunity16 = sc.textFile(args(2),args(4).toInt).cache()
+//    val GetAllBargainTextFile = sc.textFile(args(3)).cache()
 //
 //    val indexes= GetAllIndex.map(line => {
 //      //先假设是逗号分隔
@@ -53,7 +53,7 @@
 //      )
 //      val cityName = IndexDetail_Arrays(1)
 //      (cityName,index)
-//    }).groupByKey().cache()
+//    }).groupByKey()
 //   // val indexes =  sc.broadcast(AllIndexMapList).value
 //    //println("indexes:"+indexes.count())
 //    //println("AllIndexMapList:"+AllIndexMapList.count())
@@ -86,8 +86,8 @@
 //        tt(20).toDouble,
 //        tt(21).toDouble))
 //
-//    }).cache()
-//   // val thresholds = sc.broadcast(thresholdArray).value
+//    })
+//    //val thresholds = sc.broadcast(thresholdArray).value
 //
 //
 //    //SETTING初始化
@@ -97,11 +97,11 @@
 //    val square_coefficient=Map[Int,Double](0->1,1 ->0.85,2->0.6,3 ->0.3,4->0)
 //    val square_rule=Map[Int, Section](0->Section ( 0, 40),1-> Section ( 40, 60 ),2-> Section (60, 90),3-> Section (90,140),4-> Section (140,999))
 //    val square_adjust_coefficient=Map[Double,Double]("0".toDouble ->"1".toDouble,0.05-> 0.9,0.1-> 0.81,0.15-> 0.72,0.2-> 0.64,0.25-> 0.56,0.3-> 0.49,0.4-> 0.36,0.45-> 0.3,0.5-> 0.25,0.6-> 0.16,0.65-> 0.12,0.7-> 0.09,0.75-> 0.06,0.8-> 0.04,0.85-> 0.02,0.9-> 0.01,0.95-> "0".toDouble,"1".toDouble-> "0".toDouble,"100000".toDouble-> "0".toDouble)
-//    val m_Setting = Map("测试系数" ->Setting(0,"测试系数",12,1000,0.8,0.75,0.75,0.9,buildYear_coefficient,floor_coefficient,floor_rule,square_coefficient,square_rule,square_adjust_coefficient))
+//    val m_Setting = Map("测试系数" ->Setting(0,"测试系数",12,1,0.8,0.75,0.75,0.9,buildYear_coefficient,floor_coefficient,floor_rule,square_coefficient,square_rule,square_adjust_coefficient))
 //
 //    val setting = sc.broadcast(m_Setting).value
 //
-//    // println("GetAllCommunity111:"+GetAllCommunity.count())
+//   // println("GetAllCommunity111:"+GetAllCommunity.count())
 //
 //    //  Community初始化
 //
@@ -109,10 +109,10 @@
 //
 //    //  GetAllCommunity***********
 //    val AllCommunityTo_Array = GetAllCommunity.toArray()
-//    val communities=GetAllCommunity16.map(line =>{
+//    val communities2=GetAllCommunity16.map(line =>{
 //      //先假设是逗号分隔
 //      val target = line.split("\t")
-//      println("target(7):"+target.mkString("|"))
+//    //  println("target(7):"+target.mkString("|"))
 //      var community= new Community(target(0),
 //        target(1),
 //        target(2),
@@ -139,6 +139,7 @@
 //        BigDecimal(target(23)),
 //        BigDecimal(target(24)),null)
 //      //其中4,5代表的是经纬度的数据数组下标到时候还需要改,0下标代表的是小区名
+//
 //      val SimilarCommunity =
 //        AllCommunityTo_Array.map(desc =>(desc,
 //
@@ -185,12 +186,14 @@
 //      //构造成具体的小区和它的相识的小区的键值对形式，其中line可以改成具体的小区名如target(1)
 //      (community,avmModel)
 //    })
+////    val communities2 =communities1
+////    val communities = communities2.cache()
 //    //AllCommunity.persist(StorageLevel.MEMORY_ONLY_SER)
 //    //val AllCommunityBroadcast = sc.broadcast(AllCommunity)
 //
-//    //val communities22 = sc.broadcast(communities)
+//   // val communities = sc.broadcast(AllCommunity).value
 //
-//    // println("communities:"+communities.count())
+// //  println("communities:"+communities2.count())
 //    //Bargain初始化
 //    //取得所有Bargain，将其存在Map中其中key是小区名，value是list由所有的房子组成,注意要定义成var的
 //    val bargains = GetAllBargainTextFile.map(line => {
@@ -208,15 +211,16 @@
 //      val communityID = BargainDetail_Arrays(1)
 //      (communityID,bargain)
 //    }).groupByKey()
-//
 //   // val bargains = sc.broadcast(AllBargainMapList).value
+////val bargains2 =bargains1
+////    val bargains = bargains2.cache()
+//  //  println("bargains:"+bargains.count())
+//    process(communities2,"怡美家园",12,18,84.99,"朝向","2001")
+// //  process(communities2,"怡美家园",14,18,88.00,"朝向","2004")
+// //  process(communities2,"怡美家园",14,18,88.00,"朝向","2004")
+//   // communities.values
 //
-//    //  println("bargains:"+bargains.count())
-//
-//    process("怡美家园",12,18,84.99,"朝向","2001")
-//
-//
-//    def process(pcommunityName:String, pfloor:Int, pTotalFloor:Int,psquare:Double,pfaceTo:String,pbuildYear:String,
+//    def process(communities:RDD[(Community,Array[AVMCommunity])],pcommunityName:String, pfloor:Int, pTotalFloor:Int,psquare:Double,pfaceTo:String,pbuildYear:String,
 //                pLocation_Longitude:Double=0,pLocation_Latitude:Double=0)={
 //      println("\n\n************************************************\nstart\n************************************")
 //      val  targetCommunity = communities.filter(line =>(line._1.CommunityName.equals(pcommunityName))).take(1)
@@ -227,11 +231,10 @@
 //
 //      println("targetCommunitytargetCommunitytargetCommunitytarget" + targetCommunity(0)._1.CommunityID)
 //
-//
+//      val communityId = targetCommunity(0)._1.CommunityID
 //
 //      println("\n\n************************************************\nFirst\n************************************")
 //      if(!targetCommunity.isEmpty){
-//        val communityId = targetCommunity(0)._1.CommunityID
 //        //其实只有一个
 //        val  bargainList = bargains.filter(line =>
 //          line._1 == communityId).collect()(0)._2
@@ -255,6 +258,7 @@
 //              Math.abs((targetCommunity.head._1.FeatureParkValue - scl.Community.FeatureParkValue).toDouble) <= BigDecimal(threadTarget._2.Park)&&
 //              Math.abs((targetCommunity.head._1.FeatureAmenitiesValue - scl.Community.FeatureAmenitiesValue).toDouble) <= BigDecimal(threadTarget._2.Amenities)&&
 //              Math.abs((targetCommunity.head._1.FeatureTrafficControlValue - scl.Community.FeatureTrafficControlValue).toDouble) <= BigDecimal(threadTarget._2.TrafficControl)&&
+//              Math.abs((targetCommunity.head._1.FeatureAmenitiesValue - scl.Community.FeatureAmenitiesValue).toDouble) <= BigDecimal(threadTarget._2.Amenities)&&
 //              Math.abs((targetCommunity.head._1.FeatureGoodFactorValue - scl.Community.FeatureGoodFactorValue).toDouble) <= BigDecimal(threadTarget._2.GoodFactor)&&
 //              Math.abs((targetCommunity.head._1.FeatureBadFactorValue - scl.Community.FeatureBadFactorValue).toDouble) <= BigDecimal(threadTarget._2.BadFactor)&&
 //              Math.abs((targetCommunity.head._1.FeatureScopeValue - scl.Community.FeatureScopeValue).toDouble) <= BigDecimal(threadTarget._2.Scope)&&

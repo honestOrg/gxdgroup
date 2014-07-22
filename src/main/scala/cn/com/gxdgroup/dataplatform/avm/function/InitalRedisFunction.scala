@@ -1,5 +1,4 @@
-package cn.com.gxdgroup.dataplatform.avm.function.verson4
-
+package cn.com.gxdgroup.dataplatform.avm.function
 import cn.com.gxdgroup.dataplatform.avm.model._
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.SparkContext
@@ -26,22 +25,27 @@ import org.apache.commons.lang.StringUtils
 import scala.collection.mutable
 import cn.com.gxdgroup.dataplatform.avm.utils.JedisUtils
 import com.redis.cluster.{ClusterNode, NoOpKeyTag, KeyTag, RedisCluster}
+
 import scala.concurrent.{Await, Future}
+
+
 import scala.BigDecimal
 import cn.com.gxdgroup.dataplatform.avm.utils.AVMUtils
 import scala.collection.mutable.ArrayBuffer
 import redis.clients.jedis.{Pipeline, Jedis, Tuple}
-
 /**
- * Created by ThinkPad on 14-6-19.
+ * Created by ThinkPad on 14-6-12.
  */
-object InitialVerson4 {
+object InitalRedisFunction {
+
   def main(args: Array[String]){
     val sc = new SparkContext("spark://cloud40:7077", "gxd",
       System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
     //jedis初始化
-    //SETTING初始化
 
+
+    //SETTING初始化
+    //SETTING初始化
     val buildYear_coefficient =Map[Double,Double]("0".toDouble -> 1,"1".toDouble -> 0.95,"2".toDouble ->0.9,"3".toDouble ->0.84,"4".toDouble ->0.8,"5".toDouble ->0.75,"6".toDouble->0.7,"7".toDouble->0.65,"8".toDouble->0.6,"9".toDouble-> 0.55,"10".toDouble-> 0.5,"11".toDouble-> 0.45,"12".toDouble-> 0.4,"13".toDouble-> 0.35,"14".toDouble-> 0.3,"15".toDouble-> 0.25,"16".toDouble-> 0.2,"17".toDouble-> 0.15,"18".toDouble-> 0.1)
     val floor_coefficient = Map[Int,Double](0 ->1,1 ->0.85,2 ->0.6)
     val floor_rule=Map[Int,Section](0 ->Section(0,10),1 ->Section(10,20),2 -> Section(20,100))
@@ -52,39 +56,35 @@ object InitialVerson4 {
     val GetAllCommunity16 = sc.textFile(args(0),args(1).toInt)
 
     val getAllBargains = sc.textFile(args(2),args(3).toInt)
-
     //redis初始化
-//因为来的数据是按城市分目录的,假设数组下标是1的为城市名，我们想构造的是redis中存的表名“北京市小区”和”北京市案例“
-    val cityName = args(0).split("/")(2)
-    val cityNametable = cityName+"小区表"
-    val bargainNametale= cityName+"案例表"
-    val AVMLOAD:String =cityName+"AVMINIT"
-   // val COMMUNITYLOAD:String = "COMMUNITYINIT"
-    //val BARGAINSLOAD:String = "BARGAINSINIT"
-    JedisUtils.initPool
-    val j: Jedis = JedisUtils.getJedis
-
-            if(j.exists(cityNametable)){
-              j.del(cityNametable)
-            }
-            if(j.exists(cityName+"AVMINIT")){
-              j.del(args(0)+"AVMINIT")
-            }
-            if(j.exists(bargainNametale)){
-              j.del(bargainNametale)
-            }
 
 
+    val AVMLOAD:String = "AVMINIT"
+    val COMMUNITYLOAD:String = "COMMUNITYINIT"
+    val BARGAINSLOAD:String = "BARGAINSINIT"
+/*
+        if(j.exists(AVMLOAD)){
+          j.del(AVMLOAD)
+        }
+
+        if(j.exists(COMMUNITYLOAD)){
+          j.del(COMMUNITYLOAD)
+        }
+        if(j.exists(BARGAINSLOAD)){
+          j.del(BARGAINSLOAD)
+        }
+
+*/
     val initialCartesian = GetAllCommunity16.cartesian(GetAllCommunity16).filter{line =>
       line._1.split("\t")(0)!=line._2.split("\t")(0)
     }.map{
       line =>
         val target1 = line._1.split("\t")
         val target2 = line._2.split("\t")
-        val distance = AVMUtils.GetDistance(target1(7).toDouble,
-          target1(6).toDouble,
-          target2(7).toDouble,
-          target2(6).toDouble)
+        val distance = AVMUtils.GetDistance(target1(5).toDouble,
+          target1(4).toDouble,
+          target2(5).toDouble,
+          target2(4).toDouble)
         (distance,target1(0)+"\t"+target2(0))
     }.filter(line => line._1<m_Setting("测试系数").maxDistance).map(line =>{
       var lineArray = line._2.split("\t")
@@ -93,35 +93,36 @@ object InitialVerson4 {
     }).groupByKey()
 
 
-    //AVMINIT存的key是小区ID，value是和其相近的小区的距离和其ID，如distance1/tID1,distance2/tID2,distance3/tID3
+//println("start:!!!!!!!!!!!!111111")
+
     initialCartesian.foreachPartition{iter=> {
-      JedisUtils.initPool
+     JedisUtils.initPool
       val j: Jedis = JedisUtils.getJedis
-      // println("okkkkkkkkkkkkkkkkkkkkkkkkkk")
+    // println("okkkkkkkkkkkkkkkkkkkkkkkkkk")
       val pipe: Pipeline = j.pipelined
       iter.foreach{line =>{
-        //    println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-        pipe.hset(AVMLOAD, line._1, line._2.mkString(","))
+    //    println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        pipe.hset("AVMINIT", line._1, line._2.mkString(","))
       }
-        pipe.sync
-      }
+        //pipe.sync
+     }
     }}
+    //    JedisUtils.initPool
+    //    val j: Jedis = JedisUtils.getJedis
+    //     val communityIdMap = j.hgetAll("AVMINIT")
+    //    println("size:"+communityIdMap.size())
+
 
     //小区初始化，构造成CommunityID，CommunityDetail
     GetAllCommunity16.foreachPartition{iter =>{
       JedisUtils.initPool
       val j: Jedis = JedisUtils.getJedis
-      //
+//
       val pipe: Pipeline = j.pipelined
       iter.foreach{line =>{
         val communityArray = line.split("\t")
         var communityDetail =
           communityArray(0)+"\t"+
-            communityArray(1)+"\t"+
-            communityArray(2)+"\t"+
-            communityArray(3)+"\t"+
-            communityArray(4)+"\t"+
-            communityArray(5)+"\t"+
             communityArray(6)+"\t"+
             communityArray(7)+"\t"+
             communityArray(8)+"\t"+
@@ -140,10 +141,8 @@ object InitialVerson4 {
             communityArray(21)+"\t"+
             communityArray(22)+"\t"+
             communityArray(23)+"\t"+
-            communityArray(24)+"\t"+
-            communityArray(25)+"\t"+
-            communityArray(26)
-        pipe.hset(cityNametable, communityArray(0), communityDetail)
+            communityArray(24)
+        pipe.hset(COMMUNITYLOAD, communityArray(0), communityDetail)
         // j.hset("COMMUNITYINIT", communityArray(0), communityDetail)
       }
         pipe.sync
@@ -154,66 +153,32 @@ object InitialVerson4 {
     val bargainKeyValues = getAllBargains.map{
       line=>
         val BargainDetail_Arrays = line.split("\t")
-
-
-     // println("line@@@@@@@@@@@@@@@@@:"+line)
-        val communityID = BargainDetail_Arrays(3)
-        (communityID,line)
+        val bargainDetail = BargainDetail_Arrays(0)+"\t"+
+          BargainDetail_Arrays(1)+"\t"+
+          BargainDetail_Arrays(2)+"\t"+
+          BargainDetail_Arrays(4)+"\t"+
+          BargainDetail_Arrays(5)+"\t"+
+          BargainDetail_Arrays(8)+"\t"+
+          BargainDetail_Arrays(9)+"\t"+
+          BargainDetail_Arrays(10)
+        val communityID = BargainDetail_Arrays(1)
+        (communityID,bargainDetail)
     }.groupByKey()
 
+
     bargainKeyValues.foreachPartition{iter => {
-      JedisUtils.initPool
-      val j: Jedis = JedisUtils.getJedis
-      val pipe: Pipeline = j.pipelined
-      iter.foreach{line =>{
-//println("line._2$$$$$$$$$$$$:"+line._2(0))
-    //    println()
-  //      println("welcome44444444444444444:"+line._2.mkString(","))
-        pipe.hset(bargainNametale,line._1,line._2.mkString(","))
-
-      }
-        pipe.sync
-      }
-    }
-
-    }
-      //Index初始化操作
-
-
-
-     // val pipe: Pipeline = j.pipelined
-/************************************
-     val getTimeArrays =  getTimeIndex.first().split("\t")
-
-      val get99CountryTuple= get99CountryIndex.foreach{line=>
         JedisUtils.initPool
         val j: Jedis = JedisUtils.getJedis
-        val arrays = line.split("\t") zip getTimeArrays
-        val key = arrays(0)._1
-      if(j.exists(key)){
-        j.del(key)
-      }
-        for(i <- 1 until  arrays.length){
-          j.rpush(key,arrays(i)._1+","+arrays(i)._2)
+        val pipe: Pipeline = j.pipelined
+      iter.foreach{line =>{
+
+          pipe.hset(BARGAINSLOAD,line._1,line._2.mkString(","))
+
         }
+          pipe.sync
       }
-
-  ***********************************/
-/*
-    //Threadhold入库redis,因为就一条
-    val getThreadholdString = threadholdTextFile.first()
-    val threadKey = getThreadholdString.split(",")(1)
-    JedisUtils.initPool
-    val j: Jedis = JedisUtils.getJedis
-    j.hset("THREADHOLD",threadKey,getThreadholdString)
-*/
-
-
-
-
-
-
-
+    }
+    }
     // JedisUtils.close(j)
   }
 }
